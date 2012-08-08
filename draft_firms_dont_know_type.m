@@ -1,0 +1,99 @@
+clear all
+clc
+tic
+
+omega=0.6;      ...prob. signal is accurate
+lamda=0.6;      ...fraction firms good
+gamma_G=0.9;    ...prob. pays off if good
+gamma_B=0.1;    ...prob. pays off if bad
+y=1.5;          ...output
+D=1;            ...investment size
+Rf=1.01;        ...risk free rate
+beta=1/Rf;      ...investor discount
+delta=1;        ...firm discount
+chi=2;
+e=0:0.0001:0.25;   ...effort grid
+last=length(e);
+
+% pi, dpi, C, dC?
+pi=0.5+chi*e;           ...prob. rating is accurate
+psi1=0.5;
+psi2=2;
+sigma=2;
+C(:,1)=psi1*e.^sigma;
+C(:,2)=psi2*e.^2*sigma;
+
+%1 is good (G) or high (H)
+%2 is bad (B) or low (L)
+%3 is uninformative (U)
+
+V=zeros(2,last); ...2 signals
+
+% Prob. of type {g,}) given signal {h,l}
+Pgh=omega*lamda/(omega*lamda+(1-omega)*(1-lamda));
+Pbh=(1-omega)*(1-lamda)/(omega*lamda+(1-omega)*(1-lamda));
+Pgl=(1-omega)*lamda/((1-omega)*lamda+omega*(1-lamda));
+Pbl=omega*(1-lamda)/((1-omega)*lamda+omega*(1-lamda));
+
+% Interest rates if using free entry condition (all expected returns =
+% risk free return)
+W=ones(3,2)*beta*D*Rf;
+R(1,1)=W(1,1)/(beta*gamma_G*D);
+R(1,2)=W(1,2)/(beta*gamma_G*D);
+R(2,1)=W(2,1)/(beta*gamma_B*D);
+R(2,2)=W(2,2)/(beta*gamma_B*D);
+R(3,1)=W(3,1)/(beta*(Pgh*gamma_G+Pbh*gamma_B)*D);
+R(3,2)=W(3,2)/(beta*(Pgl*gamma_G+Pbl*gamma_B)*D);
+
+% W=zeros(3,2); ...3 ratings, 2 signals
+% W(1,1)=beta*gamma_G*D*R(1,1);
+% W(1,2)=beta*gamma_G*D*R(1,2);
+% W(2,1)=beta*gamma_B*D*R(2,1);
+% W(2,2)=beta*gamma_B*D*R(2,2);
+% W(3,1)=beta*(Pgh*gamma_G+Pbh*gamma_B)*D*R(3,1);
+% W(3,2)=beta*(Pgl*gamma_G+Pbl*gamma_B)*D*R(3,2);
+
+test=Pgh*lamda*R(1,1)+Pbh*(1-lamda)*R(2,1)-R(3,1)
+
+i=0;
+for i=1:last
+V(1,i)= ...
+     Pgh*(-C(i,1) + delta*gamma_G*y + pi(i)*lamda*R(1,1)) ...
+    +Pbh*(-C(i,2) + delta*gamma_B*y + pi(i)*(1-lamda)*R(2,1)) ...
+    +(1-pi(i))*R(3,1);
+
+V(2,i)= ...
+     Pgl*(-C(i,1) + delta*gamma_G*y + pi(i)*lamda*R(1,2)) ...
+    +Pbl*(-C(i,2) + delta*gamma_B*y + pi(i)*(1-lamda)*R(2,2)) ...
+    +(1-pi(i))*R(3,2);
+end
+
+[VM(1),sol(1)]=max(V(1,:));
+[VM(2),sol(2)]=max(V(2,:));
+display('Signal accuracy:')
+disp(omega)
+display('Effort for high signal')
+disp(e(sol(1)))
+display('Effort for low signal')
+disp(e(sol(2)))
+display('Interest rates {G,B,U}x{H,L}')
+disp(R)
+
+plot(e,V(1,:),e,V(2,:))
+hold on
+xlabel('Effort (e)')
+legend('High Signal', 'Low signal', 'Location', 'best')
+hold off
+toc
+
+
+
+%FOC H
+%     Pgh*(-dC(i,1) + dpi(i)*lamda*R(1,1))...
+%    +Pbh*(-dC(i,2) + dpi(i)*(1-lamda)*R(2,1))...
+%    -dpi(e(i))*R(3,1);
+
+%FOC L
+%     Pgl*(-dC(i,1) + dpi(i)*lamda*R(1,2))...
+%    +Pbl*(-dC(i,2) + dpi(i)*(1-lamda)*R(2,2))...
+%    -dpi(e(i))*R(3,2);

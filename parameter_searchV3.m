@@ -1,0 +1,91 @@
+% Parameter Search for Model V3
+% Firms don't know type, p1+(p2+p3)pi, p2(1-pi), p3(1-pi)
+% July 26, 2012
+
+
+clear all
+clc
+tic
+
+gamma_G=0.90;    ...prob. pays off if good
+gamma_B=0.50;    ...prob. pays off if bad
+y=5;             ...output
+D=1;             ...investment size
+r=1.01;          ...risk free rate
+p1=0.2;          ...parameters for rating prod. function
+p2=0.4;          ...see above
+p3=0.4;
+
+par=[gamma_G;gamma_B;y;D;r;p1;p2;p3];
+
+l=0.7;        ...fraction of firms that are "good"
+w=0.7;      ...prob. signal is accurate
+alpha=2;       ...exponent of cost function (c=pi^alpha)
+last_l=length(l);
+last_o=length(w);
+last_a=length(alpha);
+
+piH=zeros(last_o,last_l,last_a);       ...prob. rating is accurate, choice
+piL=zeros(last_o,last_l,last_a);
+
+Pgh=zeros(last_o,last_l);       ...prob. of type given signal
+Pbh=zeros(last_o,last_l);
+Pgl=zeros(last_o,last_l);
+Pbl=zeros(last_o,last_l);
+
+for i=1:last_o
+    for j=1:last_l
+        
+        % Prob. of type {g,}) given signal {h,l}
+        Pgh=w(i)*l(j)/(w(i)*l(j)+(1-w(i))*(1-l(j)));
+        Pbh=(1-w(i))*(1-l(j))/(w(i)*l(j)+(1-w(i))*(1-l(j)));
+        Pgl=w(i)*(1-l(j))/(w(i)*(1-l(j))+(1-w(i))*l(j));
+        Pbl=(1-w(i))*l(j)/(w(i)*(1-l(j))+(1-w(i))*l(j));
+        
+        for k=1:last_a
+        [i,j,k]
+            x0=[par(5),par(5),par(5),0,0,1];   %starting point for search
+            [xH]=HighSig(w(i),l(j),alpha(k),Pgh,Pbh,par,x0);
+%             [xH,resnorm,residual]=HighSig(w(i),l(j),alpha(k),Pgh,Pbh,par,x0);
+%             [xL,fvalL]=LowSig(w(i),l(j),alpha(k),Pgl,Pbl,par,x0);
+%             piH(i,j,k)=xH(6);
+%             RaH(i,j,k)=xH(1);
+%             RbH(i,j,k)=xH(2);
+%             RcH(i,j,k)=xH(3);
+%             RPaH(i,j,k)=xH(4);
+%             RPcH(i,j,k)=xH(5);
+%             xH;
+        end
+    end
+end
+
+% pi=squeeze(piH);
+% Ra=squeeze(RaH);
+% Rb=squeeze(RbH);
+% Rc=squeeze(RcH);
+% Rpa=squeeze(RPaH);
+% Rpc=squeeze(RPcH);
+% surf(w,alpha,pi')
+% MC=alpha*pi^(alpha-1);
+% MB=(1/r)*(Pgh*gamma_G*...
+%             ((p2+p3)*(y-D*Ra)+(p1+(p2+p3)*pi)*(-D)*Rpa...
+%             +(-p2)*(y-D*Rb)+(-p3)*(y-D*Rc)+p3*(1-pi)*(-D)*Rpc)...
+%          +Pbh*gamma_B*...
+%             ((-p3)*(y-D*Ra)+p3*(1-pi)*(-D)*Rpa...
+%             +(-p3)*(y-D*Rb)+(p2+p3)*(y-D*Rc)+(p1+(p2+p3)*pi)*(-D)*Rpc))
+% 
+% check=MC-MB
+
+
+
+%1 is good (G) or A or high (H)
+%2 is bad (B) or B or low (L)
+%3 is C
+
+% plot(w,l,piH, w,l,piL)
+% legend('high signal', 'low signal', 'Location', 'best')
+% xlabel('omega')
+% ylabel('alpha')
+% zlabel('pi')
+
+toc

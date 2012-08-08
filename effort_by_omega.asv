@@ -1,0 +1,73 @@
+% Parameter Search for Model V3
+% Firms don't know type, p+(p+p)pi, 
+
+clear all
+clc
+tic
+
+lamda=0.6;      ...fraction firms good
+gamma_G=0.9;    ...prob. pays off if good
+gamma_B=0.1;    ...prob. pays off if bad
+y=1.5;          ...output
+D=1;            ...investment size
+r=1.01;         ...risk free rate
+beta=1/Rf;      ...investor discount
+delta=1/Rf;     ...firm discount
+p1=0.5;         ...parameters for rating prod. function
+p2=0.35;
+p3=0.15;
+
+chi=2;
+
+omega=0.5:0.0001:1;      ...prob. signal is accurate
+last=length(omega);
+
+piH=zeros(last,1);
+piL=zeros(last,1);
+
+Rah=zeros(last,1);       ...interest rates, function of pi
+Rbh=zeros(last,1);
+Rch=zeros(last,1);
+Ral=zeros(last,1);
+Rbl=zeros(last,1);
+Rcl=zeros(last,1);
+
+% pi, dpi, C, dC?
+psi1=0.5;
+psi2=2;
+sigma=2;
+
+%1 is good (G) or high (H)
+%2 is bad (B) or low (L)
+%3 is uninformative (U)
+
+W=ones(3,2)*beta*D*Rf;
+R(1,1)=W(1,1)/(beta*gamma_G*D);
+R(1,2)=W(1,2)/(beta*gamma_G*D);
+R(2,1)=W(2,1)/(beta*gamma_B*D);
+R(2,2)=W(2,2)/(beta*gamma_B*D);
+
+for i=1:last
+% Prob. of type {g,}) given signal {h,l}
+Pgh(i)=omega(i)*lamda/(omega(i)*lamda+(1-omega(i))*(1-lamda));
+Pbh(i)=(1-omega(i))*(1-lamda)/(omega(i)*lamda+(1-omega(i))*(1-lamda));
+Pgl(i)=(1-omega(i))*lamda/((1-omega(i))*lamda+omega(i)*(1-lamda));
+Pbl(i)=omega(i)*(1-lamda)/((1-omega(i))*lamda+omega(i)*(1-lamda));
+
+% Interest rates if using free entry condition (all expected returns =
+% risk free return)
+R(3,1)=W(3,1)/(beta*(Pgh(i)*gamma_G+Pbh(i)*gamma_B)*D);
+R(3,2)=W(3,2)/(beta*(Pgl(i)*gamma_G+Pbl(i)*gamma_B)*D);
+
+
+eH(i)=((Pgh(i)*lamda*R(1,1)+Pbh(i)*(1-lamda)*R(2,1)-R(3,1))*chi/...
+    (Pgh(i)*sigma*psi1+Pbh(i)*sigma*psi2))^(1/(sigma-1));
+eL(i)=((Pgl(i)*lamda*R(1,2)+Pbl(i)*(1-lamda)*R(2,2)-R(3,2))*chi/...
+    (Pgl(i)*sigma*psi1+Pbl(i)*sigma*psi2))^(1/(sigma-1));
+end
+
+plot(omega,eH, omega,eL)
+legend('high signal', 'low signal', 'Location', 'best')
+xlabel('omega')
+
+toc

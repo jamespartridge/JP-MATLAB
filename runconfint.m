@@ -1,0 +1,10 @@
+%used in lognormal_CIs.m
+
+function [x,fval] = runconfint(n,s,alpha,x0)
+[x,fval] = fsolve(@confint,x0);
+    % nested function that calls computes interval bounds
+    function F = confint(x)
+        F = [x(1)-(n-1)*(s^2)/(chi2inv(1-0.5*alpha, n-1));
+             x(2)-(n-1)*(s^2)/(chi2inv(0.5*alpha, n-1))];
+    end
+end
