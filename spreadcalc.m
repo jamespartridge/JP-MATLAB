@@ -1,12 +1,13 @@
+function [piH,piL,sprdA,sprdB,sprdC,avgMBh,avgMBl]=spreadcalc(w)
 
 gamma_G=0.90;    ...prob. pays off if good
-gamma_B=0.30;    ...prob. pays off if bad
+gamma_B=0.50;    ...prob. pays off if bad
 y=5;             ...output
 D=1;             ...investment size
 r=1.01;          ...risk free rate
-p1=0.2;          ...parameters for rating prod. function
-p2=0.4;          ...see above
-p3=0.4;
+p1=0.1;          ...parameters for rating prod. function
+p2=0.8;          ...see above
+p3=0.1;
 
 par=[gamma_G;   %1
      gamma_B;   %2
@@ -18,9 +19,9 @@ par=[gamma_G;   %1
      p3];       %8
 
 l=0.6;        ...fraction of firms that are "good"
-w=0.6;      ...prob. signal is accurate
+% w=0.7;      ...prob. signal is accurate
 z=0.1;
-alf=5;
+alf=7;
 
 % Pgh=w*l/(w*l+(1-w)*(1-l));
 % Pbh=(1-w)*(1-l)/(w*l+(1-w)*(1-l));
@@ -77,13 +78,14 @@ for i=1:lp
     V(2,i)=-M(i)+B(2,i);
 end
 
-MB=zeros(2,lp-1);
+MBh=zeros(1,lp-1);
+MBl=zeros(1,lp-1);
 for i=2:lp
-	MB(1,i-1)=(B(1,i)-B(1,i-1))/(pi(i)-pi(i-1));
-	MB(2,i-1)=(B(2,i)-B(2,i-1))/(pi(i)-pi(i-1));
+	MBh(i-1)=(B(1,i)-B(1,i-1))/(pi(i)-pi(i-1));
+	MBl(i-1)=(B(2,i)-B(2,i-1))/(pi(i)-pi(i-1));
 end
-avgMBh=sum(MB(1,1:lp-1))/(lp-1);
-avgMBl=sum(MB(2,1:lp-1))/(lp-1);
+avgMBh=sum(MBh(1:lp-1))/(lp-1);
+avgMBl=sum(MBl(1:lp-1))/(lp-1);
 
 [~,mh]=max(V(1,:));
 piH=pi(mh);
@@ -119,3 +121,5 @@ sprdC=y(3,ml)-x(3,mh);
 % plot(pi(mh),V(1,mh),'--gs','MarkerSize',20)
 % plot(pi(ml),V(2,ml),'--ro','MarkerSize',20)
 % hold off
+
+end
