@@ -1,27 +1,9 @@
-function [piH,piL,sprdA,sprdB,sprdC,avgMBh,avgMBl]=spreadcalc(w)
+function [piH,piL,sprdA,sprdB,sprdC,avgMBh,avgMBl,MCh,MCl]=spreadcalc(w,par)
 
-gamma_G=0.90;    ...prob. pays off if good
-gamma_B=0.50;    ...prob. pays off if bad
-y=5;             ...output
-D=1;             ...investment size
-r=1.01;          ...risk free rate
-p1=0.1;          ...parameters for rating prod. function
-p2=0.8;          ...see above
-p3=0.1;
-
-par=[gamma_G;   %1
-     gamma_B;   %2
-     y;         %3
-     D;         %4
-     r;         %5
-     p1;        %6
-     p2;        %7
-     p3];       %8
-
-l=0.6;        ...fraction of firms that are "good"
+l=0.8;        ...fraction of firms that are "good"
 % w=0.7;      ...prob. signal is accurate
-z=0.1;
-alf=7;
+z=.2;
+alf=1;
 
 % Pgh=w*l/(w*l+(1-w)*(1-l));
 % Pbh=(1-w)*(1-l)/(w*l+(1-w)*(1-l));
@@ -63,7 +45,7 @@ M=zeros(1,lp);
 B=zeros(2,lp);
 
 for i=1:lp
-    M(i)=z*(1+pi(i))^alf;
+    M(i)=z*(pi(i)/(1-pi(i)))^alf;
 
     B(1,i)=((par(5)*(w*l+(1-w)*(1-l)))^(-1))*...
          (w*l*par(1)*(par(6)+(par(7)+par(8))*pi(i))+(1-w)*(1-l)*par(2)*par(8)*(1-pi(i)))*RET(1,1,i)*(RET(1,1,i)>0)...
@@ -92,8 +74,8 @@ piH=pi(mh);
 [~,ml]=max(V(2,:));
 piL=pi(ml);
 
-MCh=z*alf*(1+pi(mh))^(alf-1);
-MCl=z*alf*(1+pi(ml))^(alf-1);
+MCh=z*alf*(1-pi(mh))^(-2)*(pi(mh)/(1-pi(mh)))^(alf-1);
+MCl=z*alf*(1-pi(ml))^(-2)*(pi(ml)/(1-pi(ml)))^(alf-1);
 
 SPRD=zeros(1,3);
 SPRD(:)=y(:,ml)-x(:,mh);
