@@ -1,8 +1,29 @@
-function [piH,piL,Rah,Rbh,Rch,Ral,Rbl,Rcl,...
-            MBh,MBl,eqMBh,eqMBl,MCh,MCl,Bh,Bl]=spreadcalc(w,par,l)
+gamma_G=0.90;    ...prob. pays off if good
+gamma_B=0.50;    ...prob. pays off if bad
+y=5;             ...output
+D=1;             ...investment size
+r=1.01;          ...risk free rate
+p1=0.6;          ...Pr(A|H)=Pr(C|L)=p1+(p2+p3)pi
+p2=0.2;          ...Pr(B)=p2(1-pi)
+p3=0.2;          ...Pr(C|H)=Pr(A|L)=p3(1-pi)
+
+%parameter vector
+par=[gamma_G;   %1
+     gamma_B;   %2
+     y;         %3
+     D;         %4
+     r;         %5
+     p1;        %6
+     p2;        %7
+     p3];       %8
+
+w=0.6;
+l=0.7;          ...fraction of firms that are "good"
+z=1e-1;        ...cost function coefficient
+alf=5;          ...cost function exponent
 
 %pi grid
-pi=0:0.001:1;
+pi=0:0.01:1;
 lp=length(pi);
 
 x=zeros(3,lp);
@@ -26,14 +47,13 @@ for i=1:lp
     RET(2,j,i)=par(3)-par(4)*y(j,i);
 end
 end
-
-V=zeros(2,lp);
-M=zeros(1,lp);
-B=zeros(2,lp);
+IND=RET>0;...indicator function
+V=zeros(2,lp);...utility function
+M=zeros(1,lp);...cost function
+B=zeros(2,lp);...benefit function
 for i=1:lp
-%     M(i)=z*pi(i)/(1-pi(i))^alf;
-%     M(i)=z*(pi(i)^alf)/(1-pi(i));
-    M(i)=par(9)*(pi(i)^par(10))/((1-pi(i))^par(11));
+%     M(i)=z*(pi(i)/(1-pi(i)))^alf;
+    M(i)=z*(1+pi(i))^alf-z;
 
     B(1,i)=((par(5)*(w*l+(1-w)*(1-l)))^(-1))*(...
          (w*l*par(1)*(par(6)+(par(7)+par(8))*pi(i))+(1-w)*(1-l)*par(2)*par(8)*(1-pi(i)))*RET(1,1,i)*(RET(1,1,i)>0)...
@@ -48,9 +68,6 @@ for i=1:lp
     V(2,i)=-M(i)+B(2,i);
 end
 
-Bh=B(1,:);
-Bl=B(2,:);
-
 %find the EQ pi
 [~,mh]=max(V(1,:));
 piH=pi(mh);
@@ -64,6 +81,7 @@ Ral=y(1,ml); Rbl=y(2,ml); Rcl=y(3,ml);
 %marginal benefit
 MBh=zeros(1,lp);
 MBl=zeros(1,lp);
+MC=zeros(1,lp);
 for i=1:lp
     if (RET(1,1,i)>=0 && RET(1,2,i)>=0 && RET(1,3,i)>=0)
         MBh(i)=((par(5)*(w*l+(1-w)*(1-l)))^(-1))*(...
@@ -72,11 +90,11 @@ for i=1:lp
             +(w*l*par(1)*(-par(8))+(1-w)*(1-l)*par(2)*(par(7)+par(8)))*RET(1,3,i));
     elseif (RET(1,1,i)>=0 && RET(1,2,i)>=0 && RET(1,3,i)<0)
         MBh(i)=((par(5)*(w*l+(1-w)*(1-l)))^(-1))*(...
-             (w*l*par(1)*(par(7)+par(8))-(1-w)*(1-l)*par(2)*par(8))*RET(1,1,i)...
-            -(w*l*par(1)+(1-w)*(1-l)*par(2))*par(7)*RET(1,2,i));
+             (w*l*par(1)*(par(7)+par(8))-(1-w)*(1-l)*par(2)*par(8))*RET(1,1,i)*(RET(1,1,i)>0)...
+            -(w*l*par(1)+(1-w)*(1-l)*par(2))*par(7)*RET(1,2,i)*(RET(1,2,i)>0));
     elseif (RET(1,1,i)>=0 && RET(1,2,i)<0 && RET(1,3,i)<0)
         MBh(i)=((par(5)*(w*l+(1-w)*(1-l)))^(-1))*(...
-             (w*l*par(1)*(par(7)+par(8))-(1-w)*(1-l)*par(2)*par(8))*RET(1,1,i));
+             (w*l*par(1)*(par(7)+par(8))-(1-w)*(1-l)*par(2)*par(8))*RET(1,1,i)*(RET(1,1,i)>0));
     elseif (RET(1,1,i)<0 && RET(1,2,i)<0 && RET(1,3,i)<0)
         MBh(i)=0;
     end            
@@ -95,18 +113,28 @@ for i=1:lp
              ((1-w)*l*par(1)*(par(7)+par(8))-w*(1-l)*par(2)*par(8))*RET(2,1,i));...
     elseif (RET(2,1,i)<0 && RET(2,2,i)<0 && RET(2,3,i)<0)
         MBl(i)=0;
-    end            
+    end
+    MC(i)=z*alf*(1-pi(i))^(-2)*(pi(i)/(1-pi(i)))^(alf-1);
 end
 
 %EQ marginal benefit
 eqMBh=MBh(mh); eqMBl=MBl(ml);
 
 %EQ marginal costs
-% MCh=z*((1-pi(i))^alf+alf*(1-pi(i))^(alf-1)*pi(i))/((1-pi(i))^(2*alf));
-% MCl=z*((1-pi(i))^alf+alf*(1-pi(i))^(alf-1)*pi(i))/((1-pi(i))^(2*alf));
-% MCh=z*alf*pi(mh)^(alf-1)*(1-pi(mh))+pi(mh)^alf/(1-pi(mh))^2;
-% MCl=z*alf*pi(ml)^(alf-1)*(1-pi(ml))+pi(ml)^alf/(1-pi(ml))^2;
-MCh=par(9)*(par(10)*(pi(mh)^(par(10)-1))*((1-pi(mh))^par(11))+par(11)*(pi(mh)^par(10))*((1-pi(mh))^(par(11)-1)))/((1-pi(mh))^(2*par(11)));
-MCl=par(9)*(par(10)*(pi(ml)^(par(10)-1))*((1-pi(ml))^par(11))+par(11)*(pi(ml)^par(10))*((1-pi(ml))^(par(11)-1)))/((1-pi(ml))^(2*par(11)));
+MCh=z*alf*(1-pi(mh))^(-2)*(pi(mh)/(1-pi(mh)))^(alf-1);
+MCl=z*alf*(1-pi(ml))^(-2)*(pi(ml)/(1-pi(ml)))^(alf-1);
 
-end
+figure(1)
+plot(pi,V(1,:),pi,V(2,:))
+legend('V H','V L')
+
+figure(2)
+plot(pi,B(1,:),pi,B(2,:))
+legend('B H', 'B L')
+
+figure(3)
+plot(pi,MBh,pi,MBl)
+legend('MB H','MB L')
+
+figure(4)
+plot(pi,MC)

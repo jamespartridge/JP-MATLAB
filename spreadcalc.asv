@@ -1,6 +1,7 @@
 function [piH,piL,Rah,Rbh,Rch,Ral,Rbl,Rcl,...
-            MBh,MBl,eqMBh,eqMBl,MCh,MCl,Bh,Bl]=spreadcalc(w,par,l)
+            MBh,MBl,eqMBh,eqMBl,MCh,MCl,Bh,Bl]=spreadcalc(w,par)
 
+l=0.
 %pi grid
 pi=0:0.001:1;
 lp=length(pi);
