@@ -57,10 +57,10 @@ RateSprd(2,:)=Rl(2,:)-Rh(2,:);
 RateSprd(3,:)=Rl(3,:)-Rh(3,:);
 
 %spread within signal at the EQ pi
-SigSprd(1,1,:)=Rh(3,:)-Rh(1,:); ...H signal, C over A
-SigSprd(1,2,:)=Rh(2,:)-Rh(1,:); ...H signal, B over A
-SigSprd(2,1,:)=Rl(3,:)-Rl(1,:); ...L signal, C over A
-SigSprd(2,2,:)=Rl(2,:)-Rl(1,:); ...L signal, B over A
+% SigSprd(1,1,:)=Rh(3,:)-Rh(1,:); ...H signal, C over A
+% SigSprd(1,2,:)=Rh(2,:)-Rh(1,:); ...H signal, B over A
+% SigSprd(2,1,:)=Rl(3,:)-Rl(1,:); ...L signal, C over A
+% SigSprd(2,2,:)=Rl(2,:)-Rl(1,:); ...L signal, B over A
 
 %EQ rating probabilities conditional on signal
 probAgivH=par(6)+(par(7)+par(8))*piH;
@@ -70,29 +70,34 @@ probAgivL=par(8)*(1-piL);
 probBgivL=par(7)*(1-piL);
 probCgivL=par(6)+(par(7)+par(8))*piL;
 
+numA=probAgivH*l+probAgivL*(1-l);
+numB=probBgivH*l+probBgivL*(1-l);
+numC=probCgivH*l+probCgivL*(1-l);
+
 %Exp. return in EQ
-RETh=zeros(3,lw);
-RETl=zeros(3,lw);
-for i=1:lw
-    for j=1:3
-        RETh(j,i)=par(3)-par(4)*Rh(j,i);
-        RETl(j,i)=par(3)-par(4)*Rl(j,i);
-    end
-end
+% RETh=zeros(3,lw);
+% RETl=zeros(3,lw);
+% for i=1:lw
+%     for j=1:3
+%         RETh(j,i)=par(3)-par(4)*Rh(j,i);
+%         RETl(j,i)=par(3)-par(4)*Rl(j,i);
+%     end
+% end
 
 figure(1)
 % subplot(2,2,1,'replace')
 plot(w,piH,'--',w,piL)
-title('Optimal investment in ratings')
+title('Equilibrium investment in ratings')
 xlabel('\omega')
 ylabel('\pi^*_\nu')
 legend('\pi^*_H','\pi^*_L','Location','best')
 
+figure(3)
 % subplot(2,2,2,'replace')
-% plot(w,RateSprd(1,:),'--g',w,RateSprd(2,:),'-b',w,RateSprd(3,:),'r')
-% title('Interest rate spreads (R(h,L)-R(h,H))')
-% xlabel('\omega')
-% legend('A','B','C','Location','best')
+plot(w,RateSprd(1,:),'--g',w,RateSprd(2,:),'-b',w,RateSprd(3,:),'r')
+title('Interest rate spreads (R(h,L)-R(h,H))')
+xlabel('\omega')
+legend('A','B','C','Location','best')
 
 % subplot(2,2,3,'replace')
 % plot(w,MBh,'--',w,MBl)
@@ -140,11 +145,11 @@ legend('\pi^*_H','\pi^*_L','Location','best')
 % xlabel('\omega')
 % legend('A','B','C','Location','best')
 
-pi=0:0.001:1;
-lp=length(pi);
+% pi=0:0.001:1;
+% lp=length(pi);
 
-for i=1:lp
-    MC(i)=par(9)*(par(10)*(pi(i)^(par(10)-1))*((1-pi(i))^par(11)))+(par(11)*(pi(i)^par(10))*((1-pi(i))^(par(11)-1)))/((1-pi(i))^(2*par(11)));
+% for i=1:lp
+%     MC(i)=par(9)*(par(10)*(pi(i)^(par(10)-1))*((1-pi(i))^par(11)))+(par(11)*(pi(i)^par(10))*((1-pi(i))^(par(11)-1)))/((1-pi(i))^(2*par(11)));
 % for k=1:lw
 %     if MBH(k,i)<0
 %         MBH(k,i)=-1;
@@ -153,7 +158,7 @@ for i=1:lp
 %         MBL(k,i)=-1;
 %     end
 % end
-end
+% end
 
 % figure(4)
 % hold on
@@ -165,4 +170,9 @@ end
 % legend('MC','MBh w=0.6','MBh w=0.7','MBh w=0.8','MBh w=0.9',...
 %             'MBl w=0.6','MBl w=0.7','MBl w=0.8','MBl w=0.9')
 % hold off
+
+figure(5)
+plot(w,numA,w,numB,w,numC)
+legend('A','B','C')
+
 toc
