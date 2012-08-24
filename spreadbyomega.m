@@ -3,12 +3,12 @@ clear all
 
 gamma_G=0.90;    ...prob. pays off if good
 gamma_B=0.30;    ...prob. pays off if bad
-y=1.5;           ...output
+y=1.5;             ...output
 D=1;             ...investment size
 r=1.01;          ...risk free rate
-p1=0.5;          ...Pr(A|H)=Pr(C|L)=p1+(p2+p3)pi
-p2=0.3;          ...Pr(B)=p2(1-pi)
-p3=0.2;          ...Pr(C|H)=Pr(A|L)=p3(1-pi)
+p1=0.5;         ...Pr(A|H)=Pr(C|L)=p1+(p2+p3)pi
+p2=0.3;         ...Pr(B)=p2(1-pi)
+p3=0.2;         ...Pr(C|H)=Pr(A|L)=p3(1-pi)
 
 z=1/13;
 alf=1;
@@ -32,7 +32,6 @@ par=[gamma_G;   %1
 
 %omega grid
 w=0.5:0.001:1;
-% w=0.5:0.05:1;
 lw=length(w);
 
 %initialize matrix sizes
@@ -51,11 +50,25 @@ for k=1:lw
         MBH(k,:),MBL(k,:),MBh(k),MBl(k),MCh(k),MCl(k),Bh(k,:),Bl(k,:)]=spreadcalc(w(k),par,l);
 end
 
-%spread within rating at the EQ pi
-RateSprd(1,:)=Rl(1,:)-Rh(1,:);
-RateSprd(2,:)=Rl(2,:)-Rh(2,:);
-RateSprd(3,:)=Rl(3,:)-Rh(3,:);
+%Exp. return in EQ
+RETh=zeros(3,lw);
+RETl=zeros(3,lw);
+for i=1:lw
+    for j=1:3
+        RETh(j,i)=par(3)-par(4)*Rh(j,i);
+        RETl(j,i)=par(3)-par(4)*Rl(j,i);
+    end
+end
 
+%spread within rating at the EQ pi
+RateSprd=zeros(3,lw);
+for k=1:lw
+%     RateSprd(1,k)=(Rl(1,k)-Rh(1,k))*((RETl(1,k)>0) && (RETh(1,k)>0));
+%     RateSprd(2,k)=(Rl(2,k)-Rh(2,k))*((RETl(2,k)>0) && (RETh(2,k)>0));
+    RateSprd(1,k)=(Rl(1,k)-Rh(1,k));
+    RateSprd(2,k)=(Rl(2,k)-Rh(2,k));
+    RateSprd(3,k)=(Rl(3,k)-Rh(3,k))*((RETl(3,k)>0) && (RETh(3,k)>0));
+end
 %spread within signal at the EQ pi
 % SigSprd(1,1,:)=Rh(3,:)-Rh(1,:); ...H signal, C over A
 % SigSprd(1,2,:)=Rh(2,:)-Rh(1,:); ...H signal, B over A
@@ -63,34 +76,31 @@ RateSprd(3,:)=Rl(3,:)-Rh(3,:);
 % SigSprd(2,2,:)=Rl(2,:)-Rl(1,:); ...L signal, B over A
 
 %EQ rating probabilities conditional on signal
-probAgivH=par(6)+(par(7)+par(8))*piH;
-probBgivH=par(7)*(1-piH);
-probCgivH=par(8)*(1-piH);
-probAgivL=par(8)*(1-piL);
-probBgivL=par(7)*(1-piL);
-probCgivL=par(6)+(par(7)+par(8))*piL;
+probAgivH=zeros(1,lw);
+probBgivH=zeros(1,lw);
+probCgivH=zeros(1,lw);
+probAgivL=zeros(1,lw);
+probBgivL=zeros(1,lw);
+probCgivL=zeros(1,lw);
+for k=1:lw
+    probAgivH(k)=(par(6)+(par(7)+par(8))*piH(k))*w(k)*l+par(8)*(1-piH(k))*(1-w(k))*(1-l);
+    probBgivH(k)=par(7)*(1-piH(k))*(w(k)*l+(1-w(k))*(1-l));
+    probCgivH(k)=par(8)*(1-piH(k))*w(k)*l+(par(6)+(par(7)+par(8))*piH(k))*(1-w(k))*(1-l);
+    probAgivL(k)=(par(6)+(par(7)+par(8))*piL(k))*(1-w(k))*l+par(8)*(1-piL(k))*w(k)*(1-l);
+    probBgivL(k)=par(7)*(1-piL(k))*((1-w(k))*l+w(k)*(1-l));
+    probCgivL(k)=par(8)*(1-piL(k))*(1-w(k))*l+(par(6)+(par(7)+par(8))*piL(k))*w(k)*(1-l);
+    
+%     numA(k)=probAgivH(k)*(RETh(1,k)>0)+probAgivL(k)*(RETl(1,k)>0);
+%     numB(k)=probBgivH(k)*(RETh(2,k)>0)+probBgivL(k)*(RETl(2,k)>0);
+%     numC(k)=probCgivH(k)*(RETh(3,k)>0)+probCgivL(k)*(RETl(3,k)>0);
+end
+numA=probAgivH+probAgivL;
+numB=probBgivH+probBgivL;
+numC=probCgivH+probCgivL;
 
-numA=probAgivH*l+probAgivL*(1-l);
-numB=probBgivH*l+probBgivL*(1-l);
-numC=probCgivH*l+probCgivL*(1-l);
-
-%Exp. return in EQ
-% RETh=zeros(3,lw);
-% RETl=zeros(3,lw);
-% for i=1:lw
-%     for j=1:3
-%         RETh(j,i)=par(3)-par(4)*Rh(j,i);
-%         RETl(j,i)=par(3)-par(4)*Rl(j,i);
-%     end
-% end
-
-figure(1)
-% subplot(2,2,1,'replace')
-plot(w,piH,'--',w,piL)
-title('Equilibrium investment in ratings')
-xlabel('\omega')
-ylabel('\pi^*_\nu')
-legend('\pi^*_H','\pi^*_L','Location','best')
+%%%
+%Plots
+%%%
 
 figure(3)
 % subplot(2,2,2,'replace')
@@ -174,5 +184,13 @@ legend('A','B','C','Location','best')
 figure(5)
 plot(w,numA,w,numB,w,numC)
 legend('A','B','C')
+
+figure(1)
+% subplot(2,2,1,'replace')
+plot(w,piH,'--',w,piL)
+title('Equilibrium investment in ratings')
+xlabel('\omega')
+ylabel('\pi^*_\nu')
+legend('\pi^*_H','\pi^*_L','Location','best')
 
 toc
