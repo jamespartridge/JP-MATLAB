@@ -4,17 +4,29 @@ function [piH,piL,Rah,Rbh,Rch,Ral,Rbl,Rcl,eq]=AAAeqcalc(w,par)
 pi=0:0.01:1;
 lp=length(pi);
 
+%Conditional Probability of rating (1=A,2=B,3=C) given type (G or B)
+G=zeros(3,lp);
+B=zeros(3,lp);
+for i=1:lp
+   G(1,i)=par(6)+(par(7)+par(8))*pi(i);
+   G(2,i)=par(7)*(1-pi(i));
+   G(3,i)=par(8)*(1-pi(i));
+   B(1,i)=par(8)*(1-pi(i));
+   B(2,i)=par(7)*(1-pi(i));
+   B(3,i)=par(6)+(par(7)+par(8))*pi(i);
+end
+
 x=zeros(3,lp);
 y=zeros(3,lp);
 for i=1:lp
     %High signal interest rates
-    x(1,i)=par(5)*(w*par(12)*(par(6)+(par(7)+par(8))*pi(i))+(1-w)*(1-par(12))*par(8)*(1-pi(i)))/(w*par(12)*(par(6)+(par(7)+par(8))*pi(i))*par(1)+(1-w)*(1-par(12))*par(8)*(1-pi(i))*par(2));
-    x(2,i)=par(5)*(w*par(12)+(1-w)*(1-par(12)))/(w*par(12)*par(1)+(1-w)*(1-par(12))*par(2));
-    x(3,i)=par(5)*(w*par(12)*par(8)*(1-pi(i))+(1-w)*(1-par(12))*(par(6)+(par(7)+par(8))*pi(i)))/(w*par(12)*par(8)*(1-pi(i))*par(1)+(1-w)*(1-par(12))*(par(6)+(par(7)+par(8))*pi(i))*par(2));
+    x(1,i)=par(5)*(w*par(12)*G(1,i)+(1-w)*(1-par(12))*B(1,i))/(w*par(12)*G(1,i)*par(1)+(1-w)*(1-par(12))*B(1,i)*par(2));
+    x(2,i)=par(5)*(w*par(12)*G(2,i)+(1-w)*(1-par(12))*B(2,i))/(w*par(12)*G(2,i)*par(1)+(1-w)*(1-par(12))*B(2,i)*par(2));
+    x(3,i)=par(5)*(w*par(12)*G(3,i)+(1-w)*(1-par(12))*B(3,i))/(w*par(12)*G(3,i)*par(1)+(1-w)*(1-par(12))*B(3,i)*par(2));
     %Low signal interest rates
-    y(1,i)=par(5)*((1-w)*par(12)*(par(6)+(par(7)+par(8))*pi(i))+w*(1-par(12))*par(8)*(1-pi(i)))/((1-w)*par(12)*(par(6)+(par(7)+par(8))*pi(i))*par(1)+w*(1-par(12))*par(8)*(1-pi(i))*par(2));
-    y(2,i)=par(5)*((1-w)*par(12)+w*(1-par(12)))/((1-w)*par(12)*par(1)+w*(1-par(12))*par(2));
-    y(3,i)=par(5)*((1-w)*par(12)*par(8)*(1-pi(i))+w*(1-par(12))*(par(6)+(par(7)+par(8))*pi(i)))/((1-w)*par(12)*par(8)*(1-pi(i))*par(1)+w*(1-par(12))*(par(6)+(par(7)+par(8))*pi(i))*par(2));
+    y(1,i)=par(5)*((1-w)*par(12)*G(1,i)+w*(1-par(12))*B(1,i))/((1-w)*par(12)*G(1,i)*par(1)+w*(1-par(12))*B(1,i)*par(2));
+    y(2,i)=par(5)*((1-w)*par(12)*G(2,i)+w*(1-par(12))*B(2,i))/((1-w)*par(12)*G(2,i)*par(1)+w*(1-par(12))*B(2,i)*par(2));
+    y(3,i)=par(5)*((1-w)*par(12)*G(3,i)+w*(1-par(12))*B(3,i))/((1-w)*par(12)*G(3,i)*par(1)+w*(1-par(12))*B(3,i)*par(2));
 end
 
 %Return if project pays off at each interest rate (y-DR)
@@ -27,25 +39,25 @@ end
 end
 
 V=zeros(2,lp,lp);
-M=zeros(1,lp);
-B=zeros(2,lp,lp);
+C=zeros(1,lp);
+E=zeros(2,lp,lp);
 % i is pi chosen, j is market/interest rate pi
 for i=1:lp
-	M(i)=par(9)*(pi(i)^par(10))/((1-pi(i))^par(11));
-% 	M(i)=z*pi(i)/(1-pi(i))^alf;
-% 	M(i)=z*(pi(i)^alf)/(1-pi(i));
+	C(i)=par(9)*(pi(i)^par(10))/((1-pi(i))^par(11));
+% 	C(i)=z*pi(i)/(1-pi(i))^alf;
+% 	C(i)=z*(pi(i)^alf)/(1-pi(i));
     for j=1:lp
-        B(1,i,j)=((par(5)*(w*par(12)+(1-w)*(1-par(12))))^(-1))*(...
-             (w*par(12)*par(1)*(par(6)+(par(7)+par(8))*pi(i))+(1-w)*(1-par(12))*par(2)*par(8)*(1-pi(i)))*RET(1,1,j)*(RET(1,1,j)>0)...
-            +(w*par(12)*par(1)+(1-w)*(1-par(12))*par(2))*par(7)*(1-pi(i))*RET(1,2,j)*(RET(1,2,j)>0)...
-            +(w*par(12)*par(1)*par(8)*(1-pi(i))+(1-w)*(1-par(12))*par(2)*(par(6)+(par(7)+par(8))*pi(i)))*RET(1,3,j)*(RET(1,3,j)>0));
-        V(1,i,j)=-M(i)+B(1,i,j);
+        E(1,i,j)=((par(5)*(w*par(12)+(1-w)*(1-par(12))))^(-1))*(...
+             (w*par(12)*par(1)*G(1,i)+(1-w)*(1-par(12))*par(2)*B(1,i))*RET(1,1,j)*(RET(1,1,j)>0)...
+            +(w*par(12)*par(1)*G(2,i)+(1-w)*(1-par(12))*par(2)*B(2,i))*RET(1,2,j)*(RET(1,2,j)>0)...
+            +(w*par(12)*par(1)*G(3,i)+(1-w)*(1-par(12))*par(2)*B(3,i))*RET(1,3,j)*(RET(1,3,j)>0));
+        V(1,i,j)=-C(i)+E(1,i,j);
     
-        B(2,i,j)=((par(5)*((1-w)*par(12)+w*(1-par(12))))^(-1))*(...
-             ((1-w)*par(12)*par(1)*(par(6)+(par(7)+par(8))*pi(i))+w*(1-par(12))*par(2)*par(8)*(1-pi(i)))*RET(2,1,j)*(RET(2,1,j)>0)...
-            +((1-w)*par(12)*par(1)+w*(1-par(12))*par(2))*par(7)*(1-pi(i))*RET(2,2,j)*(RET(2,2,j)>0)...
-            +((1-w)*par(12)*par(1)*par(8)*(1-pi(i))+w*(1-par(12))*par(2)*(par(6)+(par(7)+par(8))*pi(i)))*RET(2,3,j)*(RET(2,3,j)>0));
-        V(2,i,j)=-M(i)+B(2,i,j);
+        E(2,i,j)=((par(5)*((1-w)*par(12)+w*(1-par(12))))^(-1))*(...
+             ((1-w)*par(12)*par(1)*G(1,i)+w*(1-par(12))*par(2)*B(1,i))*RET(2,1,j)*(RET(2,1,j)>0)...
+            +((1-w)*par(12)*par(1)*G(2,i)+w*(1-par(12))*par(2)*B(2,i))*RET(2,2,j)*(RET(2,2,j)>0)...
+            +((1-w)*par(12)*par(1)*G(3,i)+w*(1-par(12))*par(2)*B(3,i))*RET(2,3,j)*(RET(2,3,j)>0));
+        V(2,i,j)=-C(i)+E(2,i,j);
     end
 end
 
