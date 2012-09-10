@@ -1,18 +1,15 @@
 tic
 clear all
 
-gamma_G=0.90;    ...prob. pays off if good
+gamma_G=1.00;    ...prob. pays off if good
 gamma_B=0.30;    ...prob. pays off if bad
-y=1.5;           ...output
+y=5;           ...output
 D=1;             ...investment size
 r=1.01;          ...risk free rate
 p1=0.5;          ...Pr(A|H)=Pr(C|L)=p1+(p2+p3)pi
 p2=0.3;          ...Pr(B)=p2(1-pi)
 p3=0.2;          ...Pr(C|H)=Pr(A|L)=p3(1-pi)
-
-z=1/13;
-alf=1;
-delta=1.2;
+alf=2;           ...c(pi)=1/alpha * pi^alpha
 
 l=0.7;
 
@@ -25,10 +22,8 @@ par=[gamma_G;   %1
      p1;        %6
      p2;        %7
      p3;        %8
-     z;         %9
-     alf;       %10
-     delta;     %11
-     l];        %12
+     alf;       %9
+     l];        %10
 
 %omega grid
 w=0.5:0.1:1;
@@ -40,20 +35,11 @@ piH=zeros(1,lw);
 piL=zeros(1,lw);
 Rh=zeros(3,lw);
 Rl=zeros(3,lw);
-eq=zeros(2,lw);
 
 %calculate EQ values at each omega
 for k=1:lw
-    [piH(k),piL(k),Rh(1,k),Rh(2,k),Rh(3,k),Rl(1,k),Rl(2,k),Rl(3,k),...
-        eq(:,k)]=AAAeqcalc(w(k),par);
-%multiple equilibria?
-    if eq(2,k)==0
-        display(['No Equilibrium at ' num2str(w(k))])
-    elseif eq(2,k)>1
-        display([num2str(eq(2,k)) ' Equilibria at ' num2str(w(k))])
-    elseif eq(2,k)==1
-        display(['Equilibrium at ' num2str(w(k))])
-    end
+    [piH(k),piL(k),Rh(1,k),Rh(2,k),Rh(3,k),...
+        Rl(1,k),Rl(2,k),Rl(3,k)]=AAAfixed_point(w(k),par);
 end
 
 
@@ -90,13 +76,13 @@ end
 %     end
 % end
 
-% figure(1)
+figure(1)
 % subplot(2,2,1,'replace')
-% plot(w,piH,'--',w,piL)
-% title('Equilibrium investment in ratings')
-% xlabel('\omega')
-% ylabel('\pi^*_\nu')
-% legend('\pi^*_H','\pi^*_L','Location','best')
+plot(w,piH,'--',w,piL)
+title('Equilibrium investment in ratings')
+xlabel('\omega')
+ylabel('\pi^*_\nu')
+legend('\pi^*_H','\pi^*_L','Location','best')
 % 
 % figure(3)
 % subplot(2,2,2,'replace')

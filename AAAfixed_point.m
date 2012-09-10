@@ -1,17 +1,13 @@
+function [piHeq,piLeq,Rah,Rbh,Rch,Ral,Rbl,Rcl]=AAAfixed_point(w,par)
+
 pi=0:0.0001:1;
 lp=length(pi);
-x=zeros(1,lp);
 
-w=0.7;
-l=0.5;
-p1=0.5;
-p2=0.3;
-p3=0.2;
-gG=0.9;
-gB=0.;
-y=1.5;
-D=1;
-r=1.01;
+gG=par(1); gB=par(2);
+y=par(3); D=par(4); r=par(5);
+p1=par(6); p2=par(7); p3=par(8);
+alpha=par(9);
+l=par(10);
 
 %omega cutoffs and interest rates
 wbar=zeros(3,2,lp);
@@ -77,25 +73,39 @@ end
 piH=zeros(1,lp);
 piL=zeros(1,lp);
 for i=1:lp
-    piH(i)=1-xH(i)^(-0.5);
-    piL(i)=1-xL(i)^(-0.5);
+%     piH(i)=1-xH(i)^(-0.5);
+%     piL(i)=1-xL(i)^(-0.5);
+    piH(i)=xH(i)^(1/(alpha-1));
+    piL(i)=xL(i)^(1/(alpha-1));
+
 end
+[~,eqH]=min(abs(piH-pi));
+piHeq=pi(eqH);
+[~,eqL]=min(abs(piL-pi));
+piLeq=pi(eqL);
 
-disp(['pi cutoff for A,H:    ' num2str(phat(1,1))])
-disp(['pi cutoff for C,H:    ' num2str(phat(3,1))])
-disp(['pi cutoff for A,L:    ' num2str(phat(1,2))])
-disp(['pi cutoff for C,L:    ' num2str(phat(3,2))])
-disp(['omega cutoff for B,H: ' num2str(wbar(2,1,1))])
-disp(['omega cutoff for B,L: ' num2str(wbar(2,2,1))])
+Rah=R(1,1,eqH); Rbh=R(2,1,eqH); Rch=R(3,1,eqH);
+Ral=R(1,1,eqL); Rbl=R(2,1,eqL); Rcl=R(3,1,eqL);
 
-figure(1)
-plot(pi,pi,pi,xH)
-if phat(1,1)>0, line([phat(1,1) phat(1,1)],[0 1]), end
-if phat(3,1)>0, line([phat(3,1) phat(3,1)],[0 1]), end
-set(gca,'YLim',[0 1])
+% disp(['pi cutoff for A,H:    ' num2str(phat(1,1))])
+% disp(['pi cutoff for C,H:    ' num2str(phat(3,1))])
+% disp(['pi cutoff for A,L:    ' num2str(phat(1,2))])
+% disp(['pi cutoff for C,L:    ' num2str(phat(3,2))])
+% disp(['omega cutoff for B,H: ' num2str(wbar(2,1,1))])
+% disp(['omega cutoff for B,L: ' num2str(wbar(2,2,1))])
+% disp(['Eq. pi for H: ' num2str(piHeq)])
+% disp(['Eq. pi for L: ' num2str(piLeq)])
 
-figure(2)
-plot(pi,pi,pi,xL)
-if phat(1,2)>0, line([phat(1,2) phat(1,2)],[0 1]), end
-if phat(3,2)>0, line([phat(3,2) phat(3,2)],[0 1]), end
-set(gca,'YLim',[0 1])
+% figure(1)
+% plot(pi,pi,pi,piH)
+% if phat(1,1)>0 && phat(1,1)<1, line([phat(1,1) phat(1,1)],[0 1],'LineStyle','--'), end
+% if phat(3,1)>0 && phat(3,1)<1, line([phat(3,1) phat(3,1)],[0 1],'LineStyle','-.'), end
+% set(gca,'YLim',[0 1])
+% 
+% figure(2)
+% plot(pi,pi,pi,piL)
+% if phat(1,2)>0 && phat(1,2)<1, line([phat(1,2) phat(1,2)],[0 1],'LineStyle','--'), end
+% if phat(3,2)>0 && phat(3,2)<1, line([phat(3,2) phat(3,2)],[0 1],'LineStyle','-.'), end
+% set(gca,'YLim',[0 1])
+
+return
