@@ -3,15 +3,15 @@ clear all
 
 gamma_G=1.00;    ...prob. pays off if good
 gamma_B=0.30;    ...prob. pays off if bad
-y=5;           ...output
+y=2;           ...output
 D=1;             ...investment size
 r=1.01;          ...risk free rate
-p1=0.5;          ...Pr(A|H)=Pr(C|L)=p1+(p2+p3)pi
+p1=0.4;          ...Pr(A|H)=Pr(C|L)=p1+(p2+p3)pi
 p2=0.3;          ...Pr(B)=p2(1-pi)
-p3=0.2;          ...Pr(C|H)=Pr(A|L)=p3(1-pi)
-alf=2;           ...c(pi)=1/alpha * pi^alpha
+p3=0.3;          ...Pr(C|H)=Pr(A|L)=p3(1-pi)
+alf=3;           ...c(pi)=1/alpha * pi^alpha
 
-l=0.7;
+l=0.6;
 
 %parameter vector
 par=[gamma_G;   %1
@@ -26,7 +26,7 @@ par=[gamma_G;   %1
      l];        %10
 
 %omega grid
-w=0.5:0.1:1;
+w=0.5:0.01:1;
 % w=0.5:0.05:1;
 lw=length(w);
 
@@ -54,17 +54,36 @@ end
 % SigSprd(2,1,:)=Rl(3,:)-Rl(1,:); ...L signal, C over A
 % SigSprd(2,2,:)=Rl(2,:)-Rl(1,:); ...L signal, B over A
 
-%EQ rating probabilities conditional on signal
-% probAgivH=par(6)+(par(7)+par(8))*piH;
-% probBgivH=par(7)*(1-piH);
-% probCgivH=par(8)*(1-piH);
-% probAgivL=par(8)*(1-piL);
-% probBgivL=par(7)*(1-piL);
-% probCgivL=par(6)+(par(7)+par(8))*piL;
+%EQ signal probabilities
+probH=w*l+(1-w)*(1-l); 
+probL=(1-w)*l+w*(1-l);
 
-% numA=probAgivH*l+probAgivL*(1-l);
-% numB=probBgivH*l+probBgivL*(1-l);
-% numC=probCgivH*l+probCgivL*(1-l);
+%EQ rating probabilities conditional on signal, type
+probAgivGH=par(6)+(par(7)+par(8))*piH;
+probAgivGL=par(6)+(par(7)+par(8))*piL;
+probBgivGH=par(7)*(1-piH);
+probBgivGL=par(7)*(1-piL);
+probCgivGH=par(8)*(1-piH);
+probCgivGL=par(8)*(1-piL);
+probAgivBH=par(8)*(1-piH);
+probAgivBL=par(8)*(1-piL);
+probBgivBH=par(7)*(1-piH);
+probBgivBL=par(7)*(1-piL);
+probCgivBH=par(6)+(par(7)+par(8))*piH;
+probCgivBL=par(6)+(par(7)+par(8))*piL;
+
+%EQ rating probabilities conditional on signal
+probAgivH=probAgivGH*l+probAgivBH*(1-l);
+probAgivL=probAgivGL*l+probAgivBL*(1-l);
+probBgivH=probBgivGH*l+probBgivBH*(1-l);
+probBgivL=probBgivGL*l+probBgivBL*(1-l);
+probCgivH=probCgivGH*l+probCgivBH*(1-l);
+probCgivL=probCgivGL*l+probCgivBL*(1-l);
+
+%EQ rating probabilities
+numA=probAgivH.*probH+probAgivL.*probL;
+numB=probBgivH.*probH+probBgivL.*probL;
+numC=probCgivH.*probH+probCgivL.*probL;
 
 %Exp. return in EQ
 % RETh=zeros(3,lw);
@@ -112,19 +131,6 @@ legend('\pi^*_H','\pi^*_L','Location','best')
 % % xlabel('\omega')
 % % legend('A','B','C','Location','SouthWest')
  
-% figure(2)
-% hold on
-% h1=plot(w,probAgivH,'b'); h1b=plot(w(1:10:end),probAgivH(1:10:end),'xb');
-% h2=plot(w,probBgivH,'c'); h2b=plot(w(1:10:end),probBgivH(1:10:end),'xc');
-% h3=plot(w,probCgivH,'m'); h3b=plot(w(1:10:end),probCgivH(1:10:end),'mx');
-% h4=plot(w,probCgivL,'r'); h4b=plot(w(1:10:end),probCgivL(1:10:end),'xr');
-% h5=plot(w,probBgivL,'g'); h5b=plot(w(1:10:end),probBgivL(1:10:end),'gx');
-% h6=plot(w,probAgivL,'y'); h6b=plot(w(1:10:end),probAgivL(1:10:end),'yx');
-% title('Prob of Rating, Conditional on Signal')
-% xlabel('\omega')
-% legend([h1 h2 h3 h4 h5 h6],'AH','BH','CH','CL','BL','AL','Location','best')
-% hold off
-% 
 % figure(3)
 % subplot(2,2,[1 2])
 % plot(w,Rh(1,:),w,Rh(2,:),w,Rh(3,:))
@@ -137,34 +143,22 @@ legend('\pi^*_H','\pi^*_L','Location','best')
 % xlabel('\omega')
 % legend('A','B','C','Location','best')
 
-% pi=0:0.001:1;
-% lp=length(pi);
+figure(4)
+hold on
+h1=plot(w,probAgivH,'b'); h1b=plot(w(1:10:end),probAgivH(1:10:end),'xb');
+h2=plot(w,probBgivH,'c'); h2b=plot(w(1:10:end),probBgivH(1:10:end),'xc');
+h3=plot(w,probCgivH,'m'); h3b=plot(w(1:10:end),probCgivH(1:10:end),'mx');
+h4=plot(w,probCgivL,'r'); h4b=plot(w(1:10:end),probCgivL(1:10:end),'xr');
+h5=plot(w,probBgivL,'g'); h5b=plot(w(1:10:end),probBgivL(1:10:end),'gx');
+h6=plot(w,probAgivL,'y'); h6b=plot(w(1:10:end),probAgivL(1:10:end),'yx');
+title('Prob of Rating, Conditional on Signal')
+xlabel('\omega')
+legend([h1 h2 h3 h4 h5 h6],'AH','BH','CH','CL','BL','AL','Location','best')
+hold off
 
-% for i=1:lp
-%     MC(i)=par(9)*(par(10)*(pi(i)^(par(10)-1))*((1-pi(i))^par(11)))+(par(11)*(pi(i)^par(10))*((1-pi(i))^(par(11)-1)))/((1-pi(i))^(2*par(11)));
-% for k=1:lw
-%     if MBH(k,i)<0
-%         MBH(k,i)=-1;
-%     end
-%     if MBL(k,i)<0
-%         MBL(k,i)=-1;
-%     end
-% end
-% end
 
-% figure(4)
-% hold on
-% plot(pi(1:450),MC(1:450),pi(1:450),MBH(250,1:450),pi(1:450),MBH(350,1:450),...
-%                          pi(1:450),MBL(250,1:450),pi(1:450),MBL(350,1:450))
-
-% plot(pi(1:450),MC(1:450),pi(1:450),MBH(3,1:450),'--',pi(1:450),MBH(5,1:450),'--',pi(1:450),MBH(7,1:450),'--',pi(1:450),MBH(9,1:450),'--',...
-%                          pi(1:450),MBL(3,1:450),pi(1:450),MBL(5,1:450),pi(1:450),MBL(7,1:450),pi(1:450),MBL(9,1:450))
-% legend('MC','MBh w=0.6','MBh w=0.7','MBh w=0.8','MBh w=0.9',...
-%             'MBl w=0.6','MBl w=0.7','MBl w=0.8','MBl w=0.9')
-% hold off
-
-% figure(5)
-% plot(w,numA,w,numB,w,numC)
-% legend('A','B','C')
+figure(5)
+plot(w,numA,w,numB,w,numC)
+legend('A','B','C')
 
 toc
