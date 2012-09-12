@@ -86,14 +86,14 @@ numB=probBgivH.*probH+probBgivL.*probL;
 numC=probCgivH.*probH+probCgivL.*probL;
 
 %Exp. return in EQ
-% RETh=zeros(3,lw);
-% RETl=zeros(3,lw);
-% for i=1:lw
-%     for j=1:3
-%         RETh(j,i)=par(3)-par(4)*Rh(j,i);
-%         RETl(j,i)=par(3)-par(4)*Rl(j,i);
-%     end
-% end
+RETh=zeros(3,lw);
+RETl=zeros(3,lw);
+for i=1:lw
+    for j=1:3
+        RETh(j,i)=par(3)-par(4)*Rh(j,i);
+        RETl(j,i)=par(3)-par(4)*Rl(j,i);
+    end
+end
 
 figure(1)
 % subplot(2,2,1,'replace')

@@ -6,12 +6,12 @@ gamma_B=0.30;    ...prob. pays off if bad
 y=2;           ...output
 D=1;             ...investment size
 r=1.01;          ...risk free rate
-p1=0.3;          ...Pr(A|H)=Pr(C|L)=p1+(p2+p3)pi
-p2=0.4;          ...Pr(B)=p2(1-pi)
-p3=0.4;          ...Pr(C|H)=Pr(A|L)=p3(1-pi)
-alf=2;           ...c(pi)=1/alpha * pi^alpha
+p1=0.4;          ...Pr(A|H)=Pr(C|L)=p1+(p2+p3)pi
+p2=0.3;          ...Pr(B)=p2(1-pi)
+p3=0.3;          ...Pr(C|H)=Pr(A|L)=p3(1-pi)
+alf=3;           ...c(pi)=1/alpha * pi^alpha
 
-l=0.6;
+l=0.01;
 
 %parameter vector
 par=[gamma_G;   %1
@@ -54,7 +54,11 @@ end
 % SigSprd(2,1,:)=Rl(3,:)-Rl(1,:); ...L signal, C over A
 % SigSprd(2,2,:)=Rl(2,:)-Rl(1,:); ...L signal, B over A
 
-%EQ rating probabilities conditional on signal
+%EQ signal probabilities
+probH=w*l+(1-w)*(1-l); 
+probL=(1-w)*l+w*(1-l);
+
+%EQ rating probabilities conditional on signal, type
 probAgivGH=par(6)+(par(7)+par(8))*piH;
 probAgivGL=par(6)+(par(7)+par(8))*piL;
 probBgivGH=par(7)*(1-piH);
@@ -68,27 +72,28 @@ probBgivBL=par(7)*(1-piL);
 probCgivBH=par(6)+(par(7)+par(8))*piH;
 probCgivBL=par(6)+(par(7)+par(8))*piL;
 
+%EQ rating probabilities conditional on signal
 probAgivH=probAgivGH*l+probAgivBH*(1-l);
-probAgivL=probAgivGH*l+probAgivBH*(1-l);
-probgivH=probAgivGH*l+probAgivBH*(1-l);
-probAgivH=probAgivGH*l+probAgivBH*(1-l);
+probAgivL=probAgivGL*l+probAgivBL*(1-l);
+probBgivH=probBgivGH*l+probBgivBH*(1-l);
+probBgivL=probBgivGL*l+probBgivBL*(1-l);
+probCgivH=probCgivGH*l+probCgivBH*(1-l);
+probCgivL=probCgivGL*l+probCgivBL*(1-l);
 
-probH=w*l+(1-w)*(1-l); 
-probL=(1-w)*l+w*(1-l);
-
+%EQ rating probabilities
 numA=probAgivH.*probH+probAgivL.*probL;
 numB=probBgivH.*probH+probBgivL.*probL;
 numC=probCgivH.*probH+probCgivL.*probL;
 
 %Exp. return in EQ
-% RETh=zeros(3,lw);
-% RETl=zeros(3,lw);
-% for i=1:lw
-%     for j=1:3
-%         RETh(j,i)=par(3)-par(4)*Rh(j,i);
-%         RETl(j,i)=par(3)-par(4)*Rl(j,i);
-%     end
-% end
+RETh=zeros(3,lw);
+RETl=zeros(3,lw);
+for i=1:lw
+    for j=1:3
+        RETh(j,i)=par(3)-par(4)*Rh(j,i);
+        RETl(j,i)=par(3)-par(4)*Rl(j,i);
+    end
+end
 
 figure(1)
 % subplot(2,2,1,'replace')

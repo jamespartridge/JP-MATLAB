@@ -10,9 +10,9 @@ b1=0.2;          ...Pr(A|L)=b1+(b2+b3)pi
 b2=0.4;          ...Pr(B|L)=b2(1-pi)
 b3=0.4;          ...Pr(C|L)=b3(1-pi)
 alf=3;           ...c(pi)=1/alpha * pi^alpha
-l=0.5;
+l=0.4;
 
-w=0.6;
+w=0.73
 
 pi=0:0.0001:1;
 lp=length(pi);
@@ -109,6 +109,10 @@ disp(['Eq. pi for L: ' num2str(piLeq)])
 
 figure(1)
 plot(pi,pi,pi,piH)
+text(0.82,0.78,'$\pi^{*}=\hat{\pi}$',...
+                'HorizontalAlignment','left',...
+                'interpreter','latex',...
+                'FontSize',16)
 if phat(1,1)>0 && phat(1,1)<1, line([phat(1,1) phat(1,1)],[0 1],'LineStyle','--'), end
 if phat(3,1)>0 && phat(3,1)<1, line([phat(3,1) phat(3,1)],[0 1],'LineStyle','-.'), end
 set(gca,'YLim',[0 1])
