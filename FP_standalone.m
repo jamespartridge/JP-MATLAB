@@ -3,18 +3,18 @@ gB=0.30;         ...prob. pays off if bad
 y=2;             ...output
 D=1;             ...investment size
 r=1.01;          ...risk free rate
-g1=0.4;          ...Pr(A|G)=g1+(g2+g3)pi
-g2=0.3;          ...Pr(B|G)=g2(1-pi)
+g1=0.5;          ...Pr(A|G)=g1+(g2+g3)pi
+g2=0.2;          ...Pr(B|G)=g2(1-pi)
 g3=0.3;          ...Pr(C|G)=g3(1-pi)
-b1=0.4;          ...Pr(A|L)=b1+(b2+b3)pi
-b2=0.3;          ...Pr(B|L)=b2(1-pi)
+b1=0.5;          ...Pr(A|L)=b1+(b2+b3)pi
+b2=0.2;          ...Pr(B|L)=b2(1-pi)
 b3=0.3;          ...Pr(C|L)=b3(1-pi)
-alf=3;           ...c(pi)=1/alpha * pi^alpha
-l=0.6;
+alf=4;           ...c(pi)=1/alpha * pi^alpha
 
-w=0.535
+l=0.8
+w=0.7
 
-pi=0:0.0001:1;
+pi=0:0.00001:1;
 lp=length(pi);
 
 %omega cutoffs and interest rates
@@ -62,18 +62,18 @@ xH=zeros(1,lp);
 xL=zeros(1,lp);
 for i=1:lp
     %High
-    if w>wbar(1,1,i) && pi(i)>phat(1,1),    ...A?
+    if y-D*R(1,1,i)>0,    ...A?
         xH(i)=Hx(1,i);  end
-    if w>wbar(2,1,i),                       ...B?
+    if y-D*R(2,1,i)>0,    ...B?
         xH(i)=xH(i)+Hx(2,i); end
-    if w>wbar(3,1,i) && pi(i)<phat(3,1),    ...C?
+    if y-D*R(3,1,i)>0,    ...C?
         xH(i)=xH(i)+Hx(3,i); end
     %Low
-    if w<wbar(1,2,i) && pi(i)>phat(1,2),    ...A?
+    if y-D*R(1,2,i)>0,    ...A?
         xL(i)=Lx(1,i);  end
-    if w<wbar(2,1,i),                       ...B?
+    if y-D*R(2,2,i)>0,    ...B?
         xL(i)=xL(i)+Lx(2,i); end
-    if w<wbar(3,2,i) && pi(i)<phat(3,2),    ...C?
+    if y-D*R(3,2,i)>0,    ...C?
         xL(i)=xL(i)+Lx(3,i); end
 end
     
@@ -107,29 +107,20 @@ disp(['omega cutoff for B,L: ' num2str(wbar(2,2,1))])
 disp(['Eq. pi for H: ' num2str(piHeq)])
 disp(['Eq. pi for L: ' num2str(piLeq)])
 
-figure(1)
-plot(pi,pi,pi,piH)
-text(0.82,0.78,'$\pi^{*}=\hat{\pi}$',...
-                'HorizontalAlignment','left',...
-                'interpreter','latex',...
-                'FontSize',16)
-if phat(1,1)>0 && phat(1,1)<1, line([phat(1,1) phat(1,1)],[0 1],'LineStyle','--'), end
-if phat(3,1)>0 && phat(3,1)<1, line([phat(3,1) phat(3,1)],[0 1],'LineStyle','-.'), end
-set(gca,'YLim',[0 1])
+hold on
+% figure(1)
+% plot(pi,pi,pi,piH)
+% text(0.82,0.78,'$\pi^{*}=\hat{\pi}$',...
+%                 'HorizontalAlignment','left',...
+%                 'interpreter','latex',...
+%                 'FontSize',16)
+% if phat(1,1)>0 && phat(1,1)<1, line([phat(1,1) phat(1,1)],[0 1],'LineStyle','--'), end
+% if phat(3,1)>0 && phat(3,1)<1, line([phat(3,1) phat(3,1)],[0 1],'LineStyle','-.'), end
+% set(gca,'YLim',[0 1])
 
 figure(2)
-plot(pi,pi,pi,piL)
+plot(pi,pi,pi,piL,'k')
 if phat(1,2)>0 && phat(1,2)<1, line([phat(1,2) phat(1,2)],[0 1],'LineStyle','--'), end
-if phat(3,2)>0 && phat(3,2)<1, line([phat(3,2) phat(3,2)],[0 1],'LineStyle','-.'), end
+if phat(3,2)>0 && phat(3,2)<1, line([phat(3,2) phat(3,2)],[0 1],'LineStyle','-.','Color','k'), end
 set(gca,'YLim',[0 1])
-
-
-MBHbyw=(y-D*R(1,1,eqH))*l*(1-l)*(gG*(g2+g3)-gB*(-b3))/((w*l+(1-w)*(1-l))^2)...
-        +((w*l*gG*(g2+g3)+(1-w)*(1-l)*gB*(-b3))/(w*l+(1-w)*(1-l)))*(-D*r*l*(1-l)*(g1+(g2+g3)*pi(eqH))*b3*(1-pi(eqH))*(gB-gG)/((w*l*(g1+(g2+g3)*pi(eqH))*gG+(1-w)*(1-l)*b3*(1-pi(eqH))*gB)^2))...
-      +(y-D*R(1,1,eqH))*l*(1-l)*(gG*(-g2)-gB*(-b2))/((w*l+(1-w)*(1-l))^2)...
-        +((w*l*gG*(-g2)+(1-w)*(1-l)*gB*(-b2))/(w*l+(1-w)*(1-l)))*(-D*r*l*(1-l)*(gB-gG)/((w*l*gG+(1-w)*(1-l)*gB)^2))...
-      +(y-D*R(1,1,eqH))*l*(1-l)*(gG*(-g3)-gB*(b2+b3))/((w*l+(1-w)*(1-l))^2)...
-        +((w*l*gG*(-g3)+(1-w)*(1-l)*gB*(b2+b3))/(w*l+(1-w)*(1-l)))*(-D*r*l*(1-l)*g3*(1-pi(eqH))*(b1+(b2+b3)*pi(eqH))*(gB-gG)/((w*l*b3*(1-pi(eqH))*gG+(1-w)*(1-l)*(b1+(b2+b3)*pi(eqH))*gB)^2));
-    
-    
     

@@ -12,7 +12,7 @@ g3=0.3;          ...Pr(C|G)=g3(1-pi)
 b1=0.5;          ...Pr(A|L)=b1+(b2+b3)pi
 b2=0.2;          ...Pr(B|L)=b2(1-pi)
 b3=0.3;          ...Pr(C|L)=b3(1-pi)
-alf=6;           ...c(pi)=1/alpha * pi^alpha
+alf=5;           ...c(pi)=1/alpha * pi^alpha
 l=0.6;
 
 par=[gG;
@@ -30,7 +30,7 @@ par=[gG;
     l];
 
 %omega grid
-w=0.5:0.01:1;
+w=0.5:0.001:1;
 % w=0.5:0.05:1;
 lw=length(w);
 
@@ -86,25 +86,68 @@ cMBH(i)=(RETh(3,i)>0)*...
 
 end
 
-MBH=aMBH+bMBH+cMBH;
-piHbyw=(1/(alf-1))*(MBH.^((2-alf)/(alf-1))).*(MBHbyw);
-figure(1)
-plot(w,aMBH,w,bMBH,w,cMBH,w,MBH.^(-2/3))
-legend('a','b','c','total')
-title('MBH')
+
+
+% MBH=aMBH+bMBH+cMBH;
+% piHbyw=(1/(alf-1))*(MBH.^((2-alf)/(alf-1))).*(MBHbyw);
+% figure(1)
+% plot(w,aMBH,w,bMBH,w,cMBH,w,MBH.^(-2/3))
+% legend('a','b','c','total')
+% title('MBH')
 figure(2)
 plot(w,piH,w,piL)
 title('EQ pi')
-figure(3)
+% figure(3)
 %     w,aMBHw1,w,bMBHw1,w,cMBHw1,...
 %     w,aMBHw2,w,bMBHw2,w,cMBHw2,...
-plot(...
-    w,aMBHw1+bMBHw1+cMBHw1,...
-    w,aMBHw2+bMBHw2+cMBHw2,...
-    w,MBHbyw)
-line([0.5 1],[0 0],'color','k')
-title('d MBH / d w')
-legend('total1','total2','total','Location','best')
+% plot(...
+%     w,aMBHw1+bMBHw1+cMBHw1,...
+%     w,aMBHw2+bMBHw2+cMBHw2,...
+%     w,MBHbyw)
+% line([0.5 1],[0 0],'color','k')
+% title('d MBH / d w')
+% legend('total1','total2','total','Location','best')
+
+%EQ signal probabilities
+probH=w*l+(1-w)*(1-l); 
+probL=(1-w)*l+w*(1-l);
+
+%EQ rating probabilities conditional on signal, type
+probAgivGH=par(6)+(par(7)+par(8))*piH;
+probAgivGL=par(6)+(par(7)+par(8))*piL;
+probBgivGH=par(7)*(1-piH);
+probBgivGL=par(7)*(1-piL);
+probCgivGH=par(8)*(1-piH);
+probCgivGL=par(8)*(1-piL);
+probAgivBH=par(8)*(1-piH);
+probAgivBL=par(8)*(1-piL);
+probBgivBH=par(7)*(1-piH);
+probBgivBL=par(7)*(1-piL);
+probCgivBH=par(6)+(par(7)+par(8))*piH;
+probCgivBL=par(6)+(par(7)+par(8))*piL;
+
+%EQ rating probabilities conditional on signal
+probAgivH=probAgivGH*l+probAgivBH*(1-l);
+probAgivL=probAgivGL*l+probAgivBL*(1-l);
+probBgivH=probBgivGH*l+probBgivBH*(1-l);
+probBgivL=probBgivGL*l+probBgivBL*(1-l);
+probCgivH=probCgivGH*l+probCgivBH*(1-l);
+probCgivL=probCgivGL*l+probCgivBL*(1-l);
+
+%EQ rating probabilities
+numA=probAgivH.*probH+probAgivL.*probL;
+numB=probBgivH.*probH+probBgivL.*probL;
+numC=probCgivH.*probH+probCgivL.*probL;
+
+figure(5)
+plot(w,numA,w,numB,w,numC)
+legend('A','B','C')
+
+figure(6)
+plot(w,Rl(1,:)-Rh(1,:),'--g',w,Rl(2,:)-Rh(2,:),'-b')
+title('Interest rate spreads, within rating')
+xlabel('\omega')
+legend('A','B','Location','best')
 
 
 hc=min(RETh(3,:))
