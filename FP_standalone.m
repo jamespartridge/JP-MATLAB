@@ -1,6 +1,6 @@
 gG=1.00;         ...prob. pays off if good
 gB=0.30;         ...prob. pays off if bad
-y=2;             ...output
+y=3;             ...output
 D=1;             ...investment size
 r=1.01;          ...risk free rate
 g1=0.5;          ...Pr(A|G)=g1+(g2+g3)pi
@@ -11,8 +11,8 @@ b2=0.2;          ...Pr(B|L)=b2(1-pi)
 b3=0.3;          ...Pr(C|L)=b3(1-pi)
 alf=4;           ...c(pi)=1/alpha * pi^alpha
 
-l=0.8
-w=0.7
+l=0.6
+w=0.75
 
 pi=0:0.00001:1;
 lp=length(pi);
@@ -108,19 +108,23 @@ disp(['Eq. pi for H: ' num2str(piHeq)])
 disp(['Eq. pi for L: ' num2str(piLeq)])
 
 hold on
-% figure(1)
-% plot(pi,pi,pi,piH)
+figure(1)
+plot(pi,pi,pi,piH)
+text(0.82,0.78,'$\pi^{*}=\hat{\pi}$',...
+                'HorizontalAlignment','left',...
+                'interpreter','latex',...
+                'FontSize',16)
+if phat(1,1)>0 && phat(1,1)<1, line([phat(1,1) phat(1,1)],[0 1],'LineStyle','--'), end
+if phat(3,1)>0 && phat(3,1)<1, line([phat(3,1) phat(3,1)],[0 1],'LineStyle','-.'), end
+set(gca,'YLim',[0 1])
+
+% figure(2)
+% plot(pi,pi,pi,piL)
 % text(0.82,0.78,'$\pi^{*}=\hat{\pi}$',...
 %                 'HorizontalAlignment','left',...
 %                 'interpreter','latex',...
 %                 'FontSize',16)
-% if phat(1,1)>0 && phat(1,1)<1, line([phat(1,1) phat(1,1)],[0 1],'LineStyle','--'), end
-% if phat(3,1)>0 && phat(3,1)<1, line([phat(3,1) phat(3,1)],[0 1],'LineStyle','-.'), end
+% if phat(1,2)>0 && phat(1,2)<1, line([phat(1,2) phat(1,2)],[0 1],'LineStyle','--'), end
+% if phat(3,2)>0 && phat(3,2)<1, line([phat(3,2) phat(3,2)],[0 1],'LineStyle','-.'), end
 % set(gca,'YLim',[0 1])
-
-figure(2)
-plot(pi,pi,pi,piL,'k')
-if phat(1,2)>0 && phat(1,2)<1, line([phat(1,2) phat(1,2)],[0 1],'LineStyle','--'), end
-if phat(3,2)>0 && phat(3,2)<1, line([phat(3,2) phat(3,2)],[0 1],'LineStyle','-.','Color','k'), end
-set(gca,'YLim',[0 1])
     
