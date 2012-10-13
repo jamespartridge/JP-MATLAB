@@ -1,46 +1,46 @@
-gG=1.00;         ...prob. pays off if good
-gB=0.30;         ...prob. pays off if bad
-y=3;             ...output
-D=1;             ...investment size
-r=1.01;          ...risk free rate
-g1=0.5;          ...Pr(A|G)=g1+(g2+g3)pi
-g2=0.2;          ...Pr(B|G)=g2(1-pi)
-g3=0.3;          ...Pr(C|G)=g3(1-pi)
-b1=0.5;          ...Pr(A|L)=b1+(b2+b3)pi
-b2=0.2;          ...Pr(B|L)=b2(1-pi)
-b3=0.3;          ...Pr(C|L)=b3(1-pi)
-alf=4;           ...c(pi)=1/alpha * pi^alpha
+gG=1.00;        ...prob. pays off if good
+gB=0.30;        ...prob. pays off if bad
+y=3;            ...output
+D=1;            ...investment size
+r=1.01;         ...risk free rate
+g1=0.4;         ...Pr(A|G)=g1+(g2+g3)pi
+g2=0.6;         ...Pr(B|G)=g2(1-pi)
+g3=0;           ...Pr(C|G)=g3(1-pi)
+b1=0.1;         ...Pr(A|L)=(b2+b3)pi
+b2=g2;          ...Pr(B|L)=b2(1-pi)
+b3=0.3;         ...Pr(C|L)=b1+b3(1-pi)
+alf=3;          ...c(pi)=1/alpha * pi^alpha
 
-l=0.6
-w=0.75
+l=0.5
+w=0.9
 
-pi=0:0.00001:1;
+pi=0:0.001:1;
 lp=length(pi);
 
 %omega cutoffs and interest rates
-wbar=zeros(3,2,lp);
-wbar(2,1,:)=-(1-l)*(y*gB-D*r)/(l*(y*gG-D*r)-(1-l)*(y*gB-D*r));
-wbar(2,2,:)=l*(y*gG-D*r)/(l*(y*gG-D*r)-(1-l)*(y*gB-D*r));
+% wbar=zeros(3,2,lp);
+% wbar(2,1,:)=-(1-l)*(y*gB-D*r)/(l*(y*gG-D*r)-(1-l)*(y*gB-D*r));
+% wbar(2,2,:)=l*(y*gG-D*r)/(l*(y*gG-D*r)-(1-l)*(y*gB-D*r));
 R=zeros(3,2,lp);
 R(2,1,:)=r*(w*l+(1-w)*(1-l))/(w*l*gG+(1-w)*(1-l)*gB);
 R(2,2,:)=r*((1-w)*l+w*(1-l))/((1-w)*l*gG+w*(1-l)*gB);
 for i=1:lp
-    wbar(1,1,i)=-(1-l)*b3*(1-pi(i))*(y*gB-D*r)/(l*(g1+(g2+g3)*pi(i))*(y*gG-D*r)-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r));
-    wbar(3,1,i)=-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r)/(l*g3*(1-pi(i))*(y*gG-D*r)-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r));
-    wbar(1,2,i)=l*(g1+(g2+g3)*pi(i))*(y*gG-D*r)/(l*(g1+(g2+g3)*pi(i))*(y*gG-D*r)-(1-l)*b3*(1-pi(i))*(y*gB-D*r));
-    wbar(3,2,i)=l*g3*(1-pi(i))*(y*gG-D*r)/(l*g3*(1-pi(i))*(y*gG-D*r)-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r));
-    R(1,1,i)=r*(w*l*(g1+(g2+g3)*pi(i))+(1-w)*(1-l)*b3*(1-pi(i)))/(w*l*(g1+(g2+g3)*pi(i))*gG+(1-w)*(1-l)*b3*(1-pi(i))*gB);
-    R(3,1,i)=r*(w*l*g3*(1-pi(i))+(1-w)*(1-l)*(b1+(b2+b3)*pi(i)))/(w*l*g3*(1-pi(i))*gG+(1-w)*(1-l)*(b1+(b2+b3)*pi(i))*gB);
-    R(1,2,i)=r*((1-w)*l*(g1+(g2+g3)*pi(i))+w*(1-l)*b3*(1-pi(i)))/((1-w)*l*(g1+(g2+g3)*pi(i))*gG+w*(1-l)*b3*(1-pi(i))*gB);
-    R(3,2,i)=r*((1-w)*l*(g1+(g2+g3)*pi(i))+w*(1-l)*b3*(1-pi(i)))/((1-w)*l*(g1+(g2+g3)*pi(i))*gG+w*(1-l)*b3*(1-pi(i))*gB);
+%     wbar(1,1,i)=-(1-l)*b3*(1-pi(i))*(y*gB-D*r)/(l*(g1+(g2+g3)*pi(i))*(y*gG-D*r)-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r));
+%     wbar(3,1,i)=-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r)/(l*g3*(1-pi(i))*(y*gG-D*r)-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r));
+%     wbar(1,2,i)=l*(g1+(g2+g3)*pi(i))*(y*gG-D*r)/(l*(g1+(g2+g3)*pi(i))*(y*gG-D*r)-(1-l)*b3*(1-pi(i))*(y*gB-D*r));
+%     wbar(3,2,i)=l*g3*(1-pi(i))*(y*gG-D*r)/(l*g3*(1-pi(i))*(y*gG-D*r)-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r));
+    R(1,1,i)=r*(w*l*(g1+(g2+g3)*pi(i))+(1-w)*(1-l)*(b2+b3)*pi(i))/(w*l*(g1+(g2+g3)*pi(i))*gG+(1-w)*(1-l)*(b2+b3)*pi(i)*gB);
+    R(3,1,i)=r*(w*l*g3*(1-pi(i))+(1-w)*(1-l)*(b1+b3*(1-pi(i))))/(w*l*g3*(1-pi(i))*gG+(1-w)*(1-l)*(b1+b3*(1-pi(i)))*gB);
+    R(1,2,i)=r*((1-w)*l*(g1+(g2+g3)*pi(i))+w*(1-l)*(b2+b3)*pi(i))/((1-w)*l*(g1+(g2+g3)*pi(i))*gG+w*(1-l)*(b2+b3)*pi(i)*gB);
+    R(3,2,i)=r*((1-w)*l*g3*(1-pi(i))+w*(1-l)*(b1+b3*(1-pi(i))))/((1-w)*l*g3*(1-pi(i))*gG+w*(1-l)*(b1+b3*(1-pi(i)))*gB);
 end
 
 %pi cutoffs
-phat=zeros(3,2);
-phat(1,1)=-(w*l*g1*(y*gG-D*r)+(1-w)*(1-l)*b3*(y*gB-D*r))/(w*l*(g2+g3)*(y*gG-D*r)+(1-w)*(1-l)*(-b3)*(y*gB-D*r));
-phat(3,1)=-(w*l*g3*(y*gG-D*r)+(1-w)*(1-l)*b1*(y*gB-D*r))/(w*l*(-g3)*(y*gG-D*r)+(1-w)*(1-l)*(b2+b3)*(y*gB-D*r));
-phat(1,2)=-((1-w)*l*g1*(y*gG-D*r)+w*(1-l)*b3*(y*gB-D*r))/((1-w)*l*(g2+g3)*(y*gG-D*r)+w*(1-l)*(-b3)*(y*gB-D*r));
-phat(3,2)=-((1-w)*l*g3*(y*gG-D*r)+w*(1-l)*b1*(y*gB-D*r))/((1-w)*l*(-g3)*(y*gG-D*r)+w*(1-l)*(b2+b3)*(y*gB-D*r));
+% phat=zeros(3,2);
+% phat(1,1)=-(w*l*g1*(y*gG-D*r)+(1-w)*(1-l)*b3*(y*gB-D*r))/(w*l*(g2+g3)*(y*gG-D*r)+(1-w)*(1-l)*(-b3)*(y*gB-D*r));
+% phat(3,1)=-(w*l*g3*(y*gG-D*r)+(1-w)*(1-l)*b1*(y*gB-D*r))/(w*l*(-g3)*(y*gG-D*r)+(1-w)*(1-l)*(b2+b3)*(y*gB-D*r));
+% phat(1,2)=-((1-w)*l*g1*(y*gG-D*r)+w*(1-l)*b3*(y*gB-D*r))/((1-w)*l*(g2+g3)*(y*gG-D*r)+w*(1-l)*(-b3)*(y*gB-D*r));
+% phat(3,2)=-((1-w)*l*g3*(y*gG-D*r)+w*(1-l)*b1*(y*gB-D*r))/((1-w)*l*(-g3)*(y*gG-D*r)+w*(1-l)*(b2+b3)*(y*gB-D*r));
 
 
 %individual terms of marginal benefit function
@@ -98,25 +98,25 @@ piLeq=pi(eqL);
 Rah=R(1,1,eqH); Rbh=R(2,1,eqH); Rch=R(3,1,eqH);
 Ral=R(1,1,eqL); Rbl=R(2,1,eqL); Rcl=R(3,1,eqL);
 
-disp(['pi cutoff for A,H:    ' num2str(phat(1,1))])
-disp(['pi cutoff for C,H:    ' num2str(phat(3,1))])
-disp(['pi cutoff for A,L:    ' num2str(phat(1,2))])
-disp(['pi cutoff for C,L:    ' num2str(phat(3,2))])
-disp(['omega cutoff for B,H: ' num2str(wbar(2,1,1))])
-disp(['omega cutoff for B,L: ' num2str(wbar(2,2,1))])
-disp(['Eq. pi for H: ' num2str(piHeq)])
-disp(['Eq. pi for L: ' num2str(piLeq)])
+% disp(['pi cutoff for A,H:    ' num2str(phat(1,1))])
+% disp(['pi cutoff for C,H:    ' num2str(phat(3,1))])
+% disp(['pi cutoff for A,L:    ' num2str(phat(1,2))])
+% disp(['pi cutoff for C,L:    ' num2str(phat(3,2))])
+% disp(['omega cutoff for B,H: ' num2str(wbar(2,1,1))])
+% disp(['omega cutoff for B,L: ' num2str(wbar(2,2,1))])
+% disp(['Eq. pi for H: ' num2str(piHeq)])
+% disp(['Eq. pi for L: ' num2str(piLeq)])
 
-hold on
-figure(1)
-plot(pi,pi,pi,piH)
-text(0.82,0.78,'$\pi^{*}=\hat{\pi}$',...
-                'HorizontalAlignment','left',...
-                'interpreter','latex',...
-                'FontSize',16)
-if phat(1,1)>0 && phat(1,1)<1, line([phat(1,1) phat(1,1)],[0 1],'LineStyle','--'), end
-if phat(3,1)>0 && phat(3,1)<1, line([phat(3,1) phat(3,1)],[0 1],'LineStyle','-.'), end
-set(gca,'YLim',[0 1])
+% hold on
+% figure(1)
+% plot(pi,pi,pi,piH)
+% text(0.82,0.78,'$\pi^{*}=\hat{\pi}$',...
+%                 'HorizontalAlignment','left',...
+%                 'interpreter','latex',...
+%                 'FontSize',16)
+% if phat(1,1)>0 && phat(1,1)<1, line([phat(1,1) phat(1,1)],[0 1],'LineStyle','--'), end
+% if phat(3,1)>0 && phat(3,1)<1, line([phat(3,1) phat(3,1)],[0 1],'LineStyle','-.'), end
+% set(gca,'YLim',[0 1])
 
 % figure(2)
 % plot(pi,pi,pi,piL)
@@ -127,4 +127,5 @@ set(gca,'YLim',[0 1])
 % if phat(1,2)>0 && phat(1,2)<1, line([phat(1,2) phat(1,2)],[0 1],'LineStyle','--'), end
 % if phat(3,2)>0 && phat(3,2)<1, line([phat(3,2) phat(3,2)],[0 1],'LineStyle','-.'), end
 % set(gca,'YLim',[0 1])
-    
+
+plot(pi,squeeze(R(1,1,:))',pi,squeeze(R(2,1,:))')

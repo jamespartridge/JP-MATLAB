@@ -1,5 +1,6 @@
 function [piHeq,piLeq,Rah,Rbh,Rch,Ral,Rbl,Rcl]=FP(w,par)
 
+
 gG=par(1);         ...prob. pays off if good
 gB=par(2);         ...prob. pays off if bad
 y=par(3);             ...output
@@ -18,29 +19,29 @@ pi=0:0.0001:1;
 lp=length(pi);
 
 %omega cutoffs and interest rates
-wbar=zeros(3,2,lp);
-wbar(2,1,:)=-(1-l)*(y*gB-D*r)/(l*(y*gG-D*r)-(1-l)*(y*gB-D*r));
-wbar(2,2,:)=l*(y*gG-D*r)/(l*(y*gG-D*r)-(1-l)*(y*gB-D*r));
+% wbar=zeros(3,2,lp);
+% wbar(2,1,:)=-(1-l)*(y*gB-D*r)/(l*(y*gG-D*r)-(1-l)*(y*gB-D*r));
+% wbar(2,2,:)=l*(y*gG-D*r)/(l*(y*gG-D*r)-(1-l)*(y*gB-D*r));
 R=zeros(3,2,lp);
 R(2,1,:)=r*(w*l+(1-w)*(1-l))/(w*l*gG+(1-w)*(1-l)*gB);
 R(2,2,:)=r*((1-w)*l+w*(1-l))/((1-w)*l*gG+w*(1-l)*gB);
 for i=1:lp
-    wbar(1,1,i)=-(1-l)*b3*(1-pi(i))*(y*gB-D*r)/(l*(g1+(g2+g3)*pi(i))*(y*gG-D*r)-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r));
-    wbar(3,1,i)=-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r)/(l*g3*(1-pi(i))*(y*gG-D*r)-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r));
-    wbar(1,2,i)=l*(g1+(g2+g3)*pi(i))*(y*gG-D*r)/(l*(g1+(g2+g3)*pi(i))*(y*gG-D*r)-(1-l)*b3*(1-pi(i))*(y*gB-D*r));
-    wbar(3,2,i)=l*g3*(1-pi(i))*(y*gG-D*r)/(l*g3*(1-pi(i))*(y*gG-D*r)-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r));
-    R(1,1,i)=r*(w*l*(g1+(g2+g3)*pi(i))+(1-w)*(1-l)*b3*(1-pi(i)))/(w*l*(g1+(g2+g3)*pi(i))*gG+(1-w)*(1-l)*b3*(1-pi(i))*gB);
-    R(3,1,i)=r*(w*l*g3*(1-pi(i))+(1-w)*(1-l)*(b1+(b2+b3)*pi(i)))/(w*l*g3*(1-pi(i))*gG+(1-w)*(1-l)*(b1+(b2+b3)*pi(i))*gB);
-    R(1,2,i)=r*((1-w)*l*(g1+(g2+g3)*pi(i))+w*(1-l)*b3*(1-pi(i)))/((1-w)*l*(g1+(g2+g3)*pi(i))*gG+w*(1-l)*b3*(1-pi(i))*gB);
-    R(3,2,i)=r*((1-w)*l*b3*(1-pi(i))+w*(1-l)*(g1+(g2+g3)*pi(i)))/((1-w)*l*b3*(1-pi(i))*gG+w*(1-l)*(g1+(g2+g3)*pi(i))*gB);
+%     wbar(1,1,i)=-(1-l)*b3*(1-pi(i))*(y*gB-D*r)/(l*(g1+(g2+g3)*pi(i))*(y*gG-D*r)-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r));
+%     wbar(3,1,i)=-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r)/(l*g3*(1-pi(i))*(y*gG-D*r)-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r));
+%     wbar(1,2,i)=l*(g1+(g2+g3)*pi(i))*(y*gG-D*r)/(l*(g1+(g2+g3)*pi(i))*(y*gG-D*r)-(1-l)*b3*(1-pi(i))*(y*gB-D*r));
+%     wbar(3,2,i)=l*g3*(1-pi(i))*(y*gG-D*r)/(l*g3*(1-pi(i))*(y*gG-D*r)-(1-l)*(b1+(b2+b3)*pi(i))*(y*gB-D*r));
+    R(1,1,i)=r*(w*l*(g1+(g2+g3)*pi(i))+(1-w)*(1-l)*(b2+b3)*pi(i))/(w*l*(g1+(g2+g3)*pi(i))*gG+(1-w)*(1-l)*(b2+b3)*pi(i)*gB);
+    R(3,1,i)=r*(w*l*g3*(1-pi(i))+(1-w)*(1-l)*(b1+b3*(1-pi(i))))/(w*l*g3*(1-pi(i))*gG+(1-w)*(1-l)*(b1+b(b2+b3)*pi(i))*gB);
+    R(1,2,i)=r*((1-w)*l*(g1+(g2+g3)*pi(i))+w*(1-l)*(b2+b3)*pi(i))/((1-w)*l*(g1+(g2+g3)*pi(i))*gG+w*(1-l)*(b2+b3)*pi(i)*gB);
+    R(3,2,i)=r*((1-w)*l*g3*(1-pi(i))+w*(1-l)*(b1+b3*(1-pi(i))))/((1-w)*l*g3*(1-pi(i))*gG+w*(1-l)*(g1+(g2+g3)*pi(i))*gB);
 end
 
 %pi cutoffs
-phat=zeros(3,2);
-phat(1,1)=-(w*l*g1*(y*gG-D*r)+(1-w)*(1-l)*b3*(y*gB-D*r))/(w*l*(g2+g3)*(y*gG-D*r)+(1-w)*(1-l)*(-b3)*(y*gB-D*r));
-phat(3,1)=-(w*l*g3*(y*gG-D*r)+(1-w)*(1-l)*b1*(y*gB-D*r))/(w*l*(-g3)*(y*gG-D*r)+(1-w)*(1-l)*(b2+b3)*(y*gB-D*r));
-phat(1,2)=-((1-w)*l*g1*(y*gG-D*r)+w*(1-l)*b3*(y*gB-D*r))/((1-w)*l*(g2+g3)*(y*gG-D*r)+w*(1-l)*(-b3)*(y*gB-D*r));
-phat(3,2)=-((1-w)*l*g3*(y*gG-D*r)+w*(1-l)*b1*(y*gB-D*r))/((1-w)*l*(-g3)*(y*gG-D*r)+w*(1-l)*(b2+b3)*(y*gB-D*r));
+% phat=zeros(3,2);
+% phat(1,1)=-(w*l*g1*(y*gG-D*r)+(1-w)*(1-l)*b3*(y*gB-D*r))/(w*l*(g2+g3)*(y*gG-D*r)+(1-w)*(1-l)*(-b3)*(y*gB-D*r));
+% phat(3,1)=-(w*l*g3*(y*gG-D*r)+(1-w)*(1-l)*b1*(y*gB-D*r))/(w*l*(-g3)*(y*gG-D*r)+(1-w)*(1-l)*(b2+b3)*(y*gB-D*r));
+% phat(1,2)=-((1-w)*l*g1*(y*gG-D*r)+w*(1-l)*b3*(y*gB-D*r))/((1-w)*l*(g2+g3)*(y*gG-D*r)+w*(1-l)*(-b3)*(y*gB-D*r));
+% phat(3,2)=-((1-w)*l*g3*(y*gG-D*r)+w*(1-l)*b1*(y*gB-D*r))/((1-w)*l*(-g3)*(y*gG-D*r)+w*(1-l)*(b2+b3)*(y*gB-D*r));
 
 
 %individual terms of marginal benefit function
