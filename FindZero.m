@@ -6,14 +6,14 @@ gB=0.30;    ...prob. pays off if bad
 y=3;           ...output
 D=1;             ...investment size
 r=1.01;          ...risk free rate
-g1=0.4;          ...Pr(A|G)=g1+(g2+g3)pi
-g2=0.6;          ...Pr(B|G)=g2(1-pi)
-g3=0;          ...Pr(C|G)=g3(1-pi)
-b1=0.1;          ...Pr(A|L)=(b2+b3)pi
+g1=0.35;          ...Pr(A|G)=g1+(g2+g3)pi
+g2=0.55;          ...Pr(B|G)=g2(1-pi)
+g3=0.1;          ...Pr(C|G)=g3(1-pi)
+b1=0;          ...Pr(A|L)=(b2+b3)pi
 b2=g2;          ...Pr(B|L)=b2(1-pi)
-b3=0.3;          ...Pr(C|L)=b1+b3(1-pi)
+b3=1-b2;          ...Pr(C|L)=b1+b3(1-pi)
 alf=3;           ...c(pi)=1/alpha * pi^alpha
-l=0.4;
+l=0.6;
 
 par=[gG;
     gB;
@@ -30,7 +30,7 @@ par=[gG;
     l];
 
 %omega grid
-w=0.5:0.01:1;
+w=0.5:0.005:1;
 lw=length(w);
 
 %initialize matrix sizes
@@ -45,6 +45,10 @@ for k=1:lw
         Rl(1,k),Rl(2,k),Rl(3,k)]=FP(w(k),par);
 end
 
+%sometimes interest rate is 0/0 at omega=1
+Rl(isnan(Rl))=r/gB;
+Rh(isnan(Rh))=r/gG;
+
 RETh(1,:)=y-D*Rh(1,:);
 RETh(2,:)=y-D*Rh(2,:);
 RETh(3,:)=y-D*Rh(3,:);
@@ -55,25 +59,26 @@ RETl(3,:)=y-D*Rl(3,:);
 MBHbyw=zeros(1,lw);
 MBLbyw=zeros(1,lw);
 for i=1:lw
+%first deriv of MBH by omega
+%high by rating, first term
 aMBHw1(i)=(RETh(1,i)>0)*...
          (y-D*Rh(1,i))*l*(1-l)*(gG*(g2+g3)-gB*(b2+b3))/((w(i)*l+(1-w(i))*(1-l))^2);
 bMBHw1(i)=(RETh(2,i)>0)*...
          (y-D*Rh(2,i))*l*(1-l)*(gG*(-g2)-gB*(-b2))/((w(i)*l+(1-w(i))*(1-l))^2);
 cMBHw1(i)=(RETh(3,i)>0)*...
          (y-D*Rh(3,i))*l*(1-l)*(gG*(-g3)-gB*(-b3))/((w(i)*l+(1-w(i))*(1-l))^2);
+%high by rating, second term
 aMBHw2(i)=(RETh(1,i)>0)*...
-          ((w(i)*l*gG*(g2+g3)+(1-w(i))*(1-l)*gB*(b2+b3))/(w(i)*l+(1-w(i))*(1-l)))*(-D*r*l*(1-l)*(g1+(g2+g3)*piH(i))*(b1+b3*(1-piH(i)))*(gB-gG)/((w(i)*l*(g1+(g2+g3)*piH(i))*gG+(1-w(i))*(1-l)*(b3+b1*(1-piH(i)))*gB)^2));
+          ((w(i)*l*gG*(g2+g3)+(1-w(i))*(1-l)*gB*(b2+b3))/(w(i)*l+(1-w(i))*(1-l)))*(-D*r*l*(1-l)*(g1+(g2+g3)*piH(i))*(b1+b3*(1-piH(i)))*(gB-gG)/((w(i)*l*(g1+(g2+g3)*piH(i))*gG+(1-w(i))*(1-l)*(b2+b3)*piH(i)*gB)^2));
 bMBHw2(i)=(RETh(2,i)>0)*...
           ((w(i)*l*gG*(-g2)+(1-w(i))*(1-l)*gB*(-b2))/(w(i)*l+(1-w(i))*(1-l)))*(-D*r*l*(1-l)*(gB-gG)/((w(i)*l*gG+(1-w(i))*(1-l)*gB)^2));
 cMBHw2(i)=(RETh(3,i)>0)*...
-          ((w(i)*l*gG*(-g3)+(1-w(i))*(1-l)*gB*(-b3))/(w(i)*l+(1-w(i))*(1-l)))*(-D*r*l*(1-l)*g3*(1-piH(i))*(b1+b3*(1-piH(i)))*(gB-gG)/((w(i)*l*b3*(1-piH(i))*gG+(1-w(i))*(1-l)*(b1+b3*(1-piH(i)))*gB)^2));
-
-aMBHbyw(i)=aMBHw1(i)+aMBHw2(i);
-bMBHbyw(i)=bMBHw1(i)+bMBHw2(i);
-cMBHbyw(i)=cMBHw1(i)+cMBHw2(i);
-
-MBHbyw(i)=aMBHbyw(i)+bMBHbyw(i)+cMBHbyw(i);
-
+          ((w(i)*l*gG*(-g3)+(1-w(i))*(1-l)*gB*(-b3))/(w(i)*l+(1-w(i))*(1-l)))*(-D*r*l*(1-l)*g3*(1-piH(i))*(b1+b3*(1-piH(i)))*(gB-gG)/((w(i)*l*g3*(1-piH(i))*gG+(1-w(i))*(1-l)*(b1+b3*(1-piH(i)))*gB)^2));
+%total for each rating
+aMBHw(i)=aMBHw1(i)+aMBHw2(i);
+bMBHw(i)=bMBHw1(i)+bMBHw2(i);
+cMBHw(i)=cMBHw1(i)+cMBHw2(i);
+MBHw(i)=aMBHw(i)+bMBHw(i)+cMBHw(i);
 %rating terms of marginal benefit (ys cancel)
 aMBH(i)=(RETh(1,i)>0)*...
          (y-D*Rh(1,i))*(w(i)*l*gG*(g2+g3)+(1-w(i))*(1-l)*gB*(b2+b3))/(w(i)*l+(1-w(i))*(1-l));
@@ -81,7 +86,36 @@ bMBH(i)=(RETh(2,i)>0)*...
          (y-D*Rh(2,i))*(w(i)*l*gG*(-g2)+(1-w(i))*(1-l)*gB*(-b2))/(w(i)*l+(1-w(i))*(1-l));
 cMBH(i)=(RETh(3,i)>0)*...
          (y-D*Rh(3,i))*(w(i)*l*gG*(-g3)+(1-w(i))*(1-l)*gB*(-b3))/(w(i)*l+(1-w(i))*(1-l));
-
+MBH=aMBH+bMBH+cMBH;
+     
+%first deriv of MBL by omega
+%low by rating, first term
+aMBLw1(i)=(RETl(1,i)>0)*...
+         (y-D*Rl(1,i))*l*(1-l)*(gG*(g2+g3)-gB*(b2+b3))/(((1-w(i))*l+w(i)*(1-l))^2);
+bMBLw1(i)=(RETl(2,i)>0)*...
+         (y-D*Rl(2,i))*l*(1-l)*(gG*(-g2)-gB*(-b2))/(((1-w(i))*l+w(i)*(1-l))^2);
+cMBLw1(i)=(RETl(3,i)>0)*...
+         (y-D*Rl(3,i))*l*(1-l)*(gG*(-g3)-gB*(-b3))/(((1-w(i))*l+w(i)*(1-l))^2);
+%low by rating, second term
+aMBLw2(i)=(RETl(1,i)>0)*...
+          ((1-w(i))*l*gG*(g2+g3)+w(i)*(1-l)*gB*(b2+b3))/((1-w(i))*l+w(i)*(1-l))*(-D*r*l*(1-l)*(g1+(g2+g3)*piL(i))*(b1+b3*(1-piL(i)))*(gB-gG)/(((1-w(i))*l*(g1+(g2+g3)*piL(i))*gG+w(i)*(1-l)*(b2+b3)*piL(i)*gB)^2));
+bMBLw2(i)=(RETl(2,i)>0)*...
+          ((1-w(i))*l*gG*(-g2)+w(i)*(1-l)*gB*(-b2))/((1-w(i))*l+w(i)*(1-l))*(-D*r*l*(1-l)*(gB-gG)/(((1-w(i))*l*gG+w(i)*(1-l)*gB)^2));
+cMBLw2(i)=(RETl(3,i)>0)*...
+          ((1-w(i))*l*gG*(-g3)+w(i)*(1-l)*gB*(-b3))/((1-w(i))*l+w(i)*(1-l))*(-D*r*l*(1-l)*g3*(1-piL(i))*(b1+b3*(1-piL(i)))*(gB-gG)/(((1-w(i))*l*g3*(1-piL(i))*gG+w(i)*(1-l)*(b1+b3*(1-piL(i)))*gB)^2));
+%total for each rating
+aMBLw(i)=aMBLw1(i)+aMBLw2(i);
+bMBLw(i)=bMBLw1(i)+bMBLw2(i);
+cMBLw(i)=cMBLw1(i)+cMBLw2(i);
+MBLw(i)=aMBLw(i)+bMBLw(i)+cMBLw(i);
+%rating terms of marginal benefit (ys cancel)
+aMBL(i)=(RETl(1,i)>0)*...
+         (y-D*Rl(1,i))*((1-w(i))*l*gG*(g2+g3)+w(i)*(1-l)*gB*(b2+b3))/((1-w(i))*l+w(i)*(1-l));
+bMBL(i)=(RETl(2,i)>0)*...
+         (y-D*Rl(2,i))*((1-w(i))*l*gG*(-g2)+w(i)*(1-l)*gB*(-b2))/((1-w(i))*l+w(i)*(1-l));
+cMBL(i)=(RETl(3,i)>0)*...
+         (y-D*Rl(3,i))*((1-w(i))*l*gG*(-g3)+w(i)*(1-l)*gB*(-b3))/((1-w(i))*l+w(i)*(1-l));
+MBL=aMBL+bMBL+cMBL;
 
 end
 
@@ -92,22 +126,35 @@ legend('H','L')
 title('EQ pi')
 
 %Different parts of the der. of piH wrt omega
-MBH=aMBH+bMBH+cMBH;
-piHbyw=(1/(alf-1))*(MBH.^((2-alf)/(alf-1))).*(MBHbyw);
+% piHw=(1/(alf-1))*(MBH.^((2-alf)/(alf-1))).*MBHw;
+% figure(2)
+% plot(w,aMBH,w,bMBH,w,cMBH,w,MBH)
+% legend('a','b','c','total')
+% title('MBH')
+%Different parts of the der. of piL wrt omega
+piLw=(1/(alf-1))*(MBL.^((2-alf)/(alf-1))).*MBLw;
 figure(2)
-plot(w,aMBH,w,bMBH,w,cMBH,w,MBH)
+plot(w,aMBL,w,bMBL,w,cMBL,w,MBL)
 legend('a','b','c','total')
-title('MBH')
+title('MBL')
 
 %Plot different terms of partial der. of MB wrt omega
+% figure(3)
+% plot(...
+%     w,aMBHw1+bMBHw1+cMBHw1,...
+%     w,aMBHw2+bMBHw2+cMBHw2,...
+%     w,MBHw)
+% line([0.5 1],[0 0],'color','k')
+% title('d MBH / d w')
 figure(3)
 plot(...
-    w,aMBHw1+bMBHw1+cMBHw1,...
-    w,aMBHw2+bMBHw2+cMBHw2,...
-    w,MBHbyw)
+    w,aMBLw1,w,aMBLw2,...
+    w,bMBLw1+bMBLw2,...
+    w,cMBLw1+cMBLw2,...
+    w,MBLw)
 line([0.5 1],[0 0],'color','k')
-title('d MBH / d w')
-legend('total1','total2','total','Location','best')
+title('d MBL / d w')
+legend('a1','a2','b','c','total','Location','best')
 
 %%%%%%%%%%
 %Ratings Distribution
@@ -140,18 +187,24 @@ numA=probAgivH.*probH+probAgivL.*probL;
 numB=probBgivH.*probH+probBgivL.*probL;
 numC=probCgivH.*probH+probCgivL.*probL;
 %plot ratings distribution
-figure(5)
-plot(w,numA,w,numB,w,numC)
-legend('A','B','C')
+% figure(5)
+% plot(w,numA,w,numB,w,numC)
+% legend('A','B','C')
 
 %%%%%%%%%
 %Within Rating Dispersion
 %%%%%%%%%
-figure(6)
-plot(w,Rl(1,:)-Rh(1,:),'--g',w,Rl(2,:)-Rh(2,:),'-b')
-title('Interest rate spreads, within rating')
-xlabel('\omega')
-legend('A','B','Location','best')
+% figure(6)
+% plot(w,Rl(1,:)-Rh(1,:),'--g',w,Rl(2,:)-Rh(2,:),'-b')
+% title('Interest rate spreads, within rating')
+% xlabel('\omega')
+% legend('A','B','Location','best')
+
+% for i=1:lw
+% test(i)=g1*(b2+b3)*(w(i)*l*(g2+g3)*gG+(1-w(i))*(1-l)*(b2+b3)*gB)/((w(i)*l*(g1+(g2+g3)*piH(i))*gG+(1-w(i))*(1-l)*(b2+b3)*piH(i)*gB)^2)...
+%         -g3*b1*(w(i)*l*g3*gG+(1-w(i))*(1-l)*b3*gB)/((w(i)*l*g3*(1-piH(i))*gG+(1-w(i))*(1-l)*b3*(1-piH(i))*gB)^2);
+% end
+% 
 
 
 hc=min(RETh(3,:))

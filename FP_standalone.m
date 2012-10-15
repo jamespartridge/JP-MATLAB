@@ -1,18 +1,18 @@
-gG=1.00;        ...prob. pays off if good
-gB=0.30;        ...prob. pays off if bad
-y=3;            ...output
-D=1;            ...investment size
-r=1.01;         ...risk free rate
-g1=0.4;         ...Pr(A|G)=g1+(g2+g3)pi
-g2=0.6;         ...Pr(B|G)=g2(1-pi)
-g3=0;           ...Pr(C|G)=g3(1-pi)
-b1=0.1;         ...Pr(A|L)=(b2+b3)pi
+gG=1.00;    ...prob. pays off if good
+gB=0.30;    ...prob. pays off if bad
+y=3;           ...output
+D=1;             ...investment size
+r=1.01;          ...risk free rate
+g1=0.35;          ...Pr(A|G)=g1+(g2+g3)pi
+g2=0.55;          ...Pr(B|G)=g2(1-pi)
+g3=0.1;          ...Pr(C|G)=g3(1-pi)
+b1=0.1;          ...Pr(A|L)=(b2+b3)pi
 b2=g2;          ...Pr(B|L)=b2(1-pi)
-b3=0.3;         ...Pr(C|L)=b1+b3(1-pi)
-alf=3;          ...c(pi)=1/alpha * pi^alpha
+b3=1-b2-b1;          ...Pr(C|L)=b1+b3(1-pi)
+alf=3;           ...c(pi)=1/alpha * pi^alpha
 
-l=0.5
-w=0.9
+l=0.6
+w=0.6
 
 pi=0:0.001:1;
 lp=length(pi);
@@ -47,12 +47,12 @@ end
 Hx=zeros(3,lp);
 Lx=zeros(3,lp);
 for i=1:lp
-    Hx(1,i)=((w*l*(g2+g3)*gG+(1-w)*(1-l)*(-b3)*gB)/(w*l+(1-w)*(1-l)))*(y-D*R(1,1,i));
+    Hx(1,i)=((w*l*(g2+g3)*gG+(1-w)*(1-l)*(b2+b3)*gB)/(w*l+(1-w)*(1-l)))*(y-D*R(1,1,i));
     Hx(2,i)=((w*l*(-g2)*gG+(1-w)*(1-l)*(-b2)*gB)/(w*l+(1-w)*(1-l)))*(y-D*R(2,1,1));
-    Hx(3,i)=((w*l*(-g3)*gG+(1-w)*(1-l)*(b2+b3)*gB)/(w*l+(1-w)*(1-l)))*(y-D*R(3,1,i));
-    Lx(1,i)=(((1-w)*l*(g2+g3)*gG+w*(1-l)*(-b3)*gB)/((1-w)*l+w*(1-l)))*(y-D*R(1,2,i));
+    Hx(3,i)=((w*l*(-g3)*gG+(1-w)*(1-l)*(-b3)*gB)/(w*l+(1-w)*(1-l)))*(y-D*R(3,1,i));
+    Lx(1,i)=(((1-w)*l*(g2+g3)*gG+w*(1-l)*(b2+b3)*gB)/((1-w)*l+w*(1-l)))*(y-D*R(1,2,i));
     Lx(2,i)=(((1-w)*l*(-g2)*gG+w*(1-l)*(-b2)*gB)/((1-w)*l+w*(1-l)))*(y-D*R(2,2,1));
-    Lx(3,i)=(((1-w)*l*(-g3)*gG+w*(1-l)*(b2+b3)*gB)/((1-w)*l+w*(1-l)))*(y-D*R(3,2,i));
+    Lx(3,i)=(((1-w)*l*(-g3)*gG+w*(1-l)*(-b3)*gB)/((1-w)*l+w*(1-l)))*(y-D*R(3,2,i));
 end
 
 %check conditions to construct marginal benefit function
@@ -128,4 +128,4 @@ Ral=R(1,1,eqL); Rbl=R(2,1,eqL); Rcl=R(3,1,eqL);
 % if phat(3,2)>0 && phat(3,2)<1, line([phat(3,2) phat(3,2)],[0 1],'LineStyle','-.'), end
 % set(gca,'YLim',[0 1])
 
-plot(pi,squeeze(R(1,1,:))',pi,squeeze(R(2,1,:))')
+plot(pi,squeeze(R(1,2,:))',pi,squeeze(R(2,2,:))',pi,squeeze(R(3,2,:))')
