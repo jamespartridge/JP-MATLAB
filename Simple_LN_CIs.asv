@@ -35,8 +35,17 @@ end
 t_axis=['1990-1993', '1994-1997', '1998-2001', '2002-2005', '2006-2009'];
 t=1:5;
 
+% figure
+% %plot(t,lower(1,:),'--r', t,cov(1,:),'-b',t,upper(1,:),'--r')
+% hold on
+% plot(t,lower(2,:),'--r', t,cov(2,:),'-+r',t,upper(2,:),'--r')
+% plot(t,lower(3,:),'--g', t,cov(3,:),'-og',t,upper(3,:),'--g')
+% plot(t,lower(4,:),'--b', t,cov(4,:),'-*b',t,upper(4,:),'--b')
+% hold off
+
 upperE=upper-cov;
 lowerE=cov-lower;
+% T=repmat([1,2,3,4,5],3,1);
 T=[1,2,3,4,5];
 
 figure('Name', 'Coefficient of Variation','OuterPosition',[300 300 1000 750]);
@@ -116,18 +125,20 @@ hTEXThi = text(1.4,0.4 ,'AAA or AA');
 hTEXTlo = text(1.4,0.48,'A or BBB');
 hTEXTsg = text(1.4,0.55,'BB or lower');
 
-set([gca,hTitle,hXLabel,hYLabel,hTEXTal,hTEXThi,hTEXTlo,hTEXTsg], ...
-    'FontName'   , 'computermodern');
+set( gca                       , ...
+    'FontName'   , 'Helvetica' );
+% set([hTitle, hXLabel, hYLabel,hTEXTal,hTEXThi,hTEXTlo,hTEXTsg], ...
+%     'FontName'   , 'AvantGarde');
 % set([hLegend, gca]             , ...
-%     'FontSize'   , 8         );
-set(gca                        , ...
-    'FontSize'   , 10          );
-set( hTitle                    , ...
+%     'FontSize'   , 8           );
+set([hXLabel, hYLabel,hTEXTal,hTEXThi,hTEXTlo,hTEXTsg], ...
     'FontSize'   , 12          );
-set([hXLabel,hYLabel], ...
-    'FontSize'   , 10          );
+set( hTitle                    , ...
+    'FontSize'   , 12          , ...
+    'FontWeight' , 'bold'      );
+
 set([hTEXTal,hTEXThi,hTEXTlo,hTEXTsg], ...
-    'FontSize'   , 8           );
+    'FontSize'   , 12                );
 
 set(gca, ...
   'Box'         , 'off'     , ...
